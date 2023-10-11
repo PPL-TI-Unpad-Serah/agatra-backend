@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"agatra/models"
+	// "agatra/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

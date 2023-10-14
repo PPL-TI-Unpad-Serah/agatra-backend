@@ -9,8 +9,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func setRoutes(){
-
+func setRoutes(app *fiber.App){
+	app.Post("/login", routes.Login)
+	app.Post("/register", routes.Register)
 }
 
 func main(){

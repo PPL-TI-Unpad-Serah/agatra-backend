@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	model "agatra/models"
+	model "agatra/model"
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 

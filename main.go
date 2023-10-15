@@ -2,16 +2,17 @@ package main
 
 import (
 	"agatra/db"
+	// "agatra/routes"
 	"log"
 	"os"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	// "github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
 func setRoutes(app *fiber.App){
-	app.Post("/login", routes.Login)
-	app.Post("/register", routes.Register)
+	// app.Post("/login", routes.Login)
+	// app.Post("/register", routes.Register)
 }
 
 func main(){

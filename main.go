@@ -2,6 +2,7 @@ package main
 
 import (
 	"agatra/db"
+	// "agatra/model"
 	// "agatra/routes"
 	"log"
 	"os"
@@ -29,7 +30,13 @@ func main(){
 		DBName:   os.Getenv("DB_NAME"),
 	}
 
-	db.Connect(config)
+	conn, err := db.Connect(config)
+	if err != nil {
+		panic(err)
+	}
+
+	// conn.AutoMigrate(&model.User{})
+
 	app := fiber.New()
 
 	setRoutes(app)

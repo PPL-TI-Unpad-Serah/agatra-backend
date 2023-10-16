@@ -2,11 +2,14 @@ package db
 
 import (
 	"fmt"
-	// "agatra/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	// "agatra/model"
 )
+
+type Postgres struct{}
 
 type Config struct{
 	Host		string
@@ -17,24 +20,22 @@ type Config struct{
 	SSLMode		string
 }
 
-type Dbstruct struct {
-	Db *gorm.DB
-}
-
-var DB Dbstruct
-
-func Connect(config *Config) (*gorm.DB, error){
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", config.Host, config.User, config.Password, config.DBName, config.Port)
+func (p *Postgres) Connect(creds *Config) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", creds.Host, creds.User, creds.Password, creds.DBName, creds.Port)
 
 	dbConn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	return dbConn, nil 
+	return dbConn, nil
 }
 
-func Reset(db *gorm.DB, table string) error {
+func NewDB() *Postgres {
+	return &Postgres{}
+}
+
+func (p *Postgres) Reset(db *gorm.DB, table string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("TRUNCATE " + table).Error; err != nil {
 			return err

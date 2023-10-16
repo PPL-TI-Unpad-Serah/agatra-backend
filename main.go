@@ -1,11 +1,13 @@
 package main
 
 import (
+	"agatra/api"
 	"agatra/db"
-	// "agatra/model"
-	// "agatra/routes"
+	"agatra/model"
+	"agatra/service"
 	"log"
 	"os"
+
 	// "embed"
 	"fmt"
 	// "net/http"
@@ -17,6 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
+
 	// "github.com/gofiber/fiber/v2"
 	// "github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -27,11 +30,12 @@ import (
 // 		app.Post("/register", routes.Register)
 // }
 
-// type APIHandler struct {
+type APIHandler struct {
+	MachineAPIHandler	api.MachineAPI
 // 	UserAPIHandler     api.UserAPI
 // 	CategoryAPIHandler api.CategoryAPI
 // 	TaskAPIHandler     api.TaskAPI
-// }
+}
 
 func main(){
 	err := godotenv.Load(".env")
@@ -56,13 +60,15 @@ func main(){
 		router := gin.New()
 		db := db.NewDB()
 		router.Use(gin.Recovery())
+		router.ForwardedByClientIP = true
+		router.SetTrustedProxies([]string{"127.0.0.1"})
 
 		conn, err := db.Connect(config)
 		if err != nil {
 			panic(err)
 		}
 
-		// conn.AutoMigrate(&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
+		conn.AutoMigrate(&model.Machine{}) //,&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
 
 		router = RunServer(conn, router)
 
@@ -78,6 +84,7 @@ func main(){
 }
 
 func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
+	machineService := service.NewMachineService(db)
 // 	userRepo := repo.NewUserRepo(db)
 // 	sessionRepo := repo.NewSessionsRepo(db)
 // 	categoryRepo := repo.NewCategoryRepo(db)
@@ -86,19 +93,28 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 // 	userService := service.NewUserService(userRepo, sessionRepo)
 // 	categoryService := service.NewCategoryService(categoryRepo)
 // 	taskService := service.NewTaskService(taskRepo)
-
+	machineAPIHandler := api.NewMachineAPI(machineService)
 // 	userAPIHandler := api.NewUserAPI(userService)
 // 	categoryAPIHandler := api.NewCategoryAPI(categoryService)
 // 	taskAPIHandler := api.NewTaskAPI(taskService)
 
-// 	apiHandler := APIHandler{
+	apiHandler := APIHandler{
+		MachineAPIHandler: 	machineAPIHandler,
 // 		UserAPIHandler:     userAPIHandler,
 // 		CategoryAPIHandler: categoryAPIHandler,
 // 		TaskAPIHandler:     taskAPIHandler,
-// 	}
+	}
 
-// 	version := gin.Group("/api/v1")
-// 	{
+	version := gin.Group("/api/v1")
+	{
+		machine := version.Group("/machine")
+		{
+			machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
+			machine.GET("/get/:id", apiHandler.MachineAPIHandler.GetMachineByID)
+			machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
+			machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
+			machine.GET("/list", apiHandler.MachineAPIHandler.GetMachineList)
+		}
 // 		user := version.Group("/user")
 // 		{
 // 			user.POST("/login", apiHandler.UserAPIHandler.Login)
@@ -128,7 +144,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 // 			category.DELETE("/delete/:id", apiHandler.CategoryAPIHandler.DeleteCategory)
 // 			category.GET("/list", apiHandler.CategoryAPIHandler.GetCategoryList)
 // 		}
-// 	}
+	}
 
 	return gin
 }

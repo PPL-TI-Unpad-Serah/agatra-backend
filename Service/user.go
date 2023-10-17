@@ -11,6 +11,7 @@ type UserService interface {
 	Delete(id int) error
 	GetByID(id int) (*model.User, error)
 	GetList() ([]model.User, error)
+	GetByEmail(Email string) (model.User, bool)
 }
 
 type userService struct {
@@ -54,4 +55,13 @@ func (us *userService) GetList() ([]model.User, error) {
 		us.db.ScanRows(rows, &result)
 	}
 	return result, nil 
+}
+
+func (us *userService) GetByEmail(email string) (model.User, bool) {
+	var result model.User
+	err := us.db.Where("email = ?", email).First(&result).Error
+	if err != nil {
+		return model.User{}, false
+	}
+	return result, true
 }

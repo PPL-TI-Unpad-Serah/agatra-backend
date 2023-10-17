@@ -5,6 +5,7 @@ import (
 	"agatra/db"
 	"agatra/model"
 	"agatra/service"
+	"agatra/middleware"
 	"log"
 	"os"
 
@@ -32,7 +33,7 @@ import (
 
 type APIHandler struct {
 	MachineAPIHandler	api.MachineAPI
-// 	UserAPIHandler     api.UserAPI
+	UserAPIHandler     	api.UserAPI
 // 	CategoryAPIHandler api.CategoryAPI
 // 	TaskAPIHandler     api.TaskAPI
 }
@@ -85,44 +86,51 @@ func main(){
 
 func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	machineService := service.NewMachineService(db)
-// 	userRepo := repo.NewUserRepo(db)
-// 	sessionRepo := repo.NewSessionsRepo(db)
-// 	categoryRepo := repo.NewCategoryRepo(db)
-// 	taskRepo := repo.NewTaskRepo(db)
+	userService := service.NewUserService(db)
+	sessionService := service.NewSessionService(db)
 
-// 	userService := service.NewUserService(userRepo, sessionRepo)
-// 	categoryService := service.NewCategoryService(categoryRepo)
-// 	taskService := service.NewTaskService(taskRepo)
 	machineAPIHandler := api.NewMachineAPI(machineService)
-// 	userAPIHandler := api.NewUserAPI(userService)
-// 	categoryAPIHandler := api.NewCategoryAPI(categoryService)
-// 	taskAPIHandler := api.NewTaskAPI(taskService)
+	userAPIHandler := api.NewUserAPI(userService, sessionService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
-// 		UserAPIHandler:     userAPIHandler,
-// 		CategoryAPIHandler: categoryAPIHandler,
-// 		TaskAPIHandler:     taskAPIHandler,
+		UserAPIHandler:     userAPIHandler,
 	}
 
 	version := gin.Group("/api/v1")
 	{
+		admin := version.Group("/admin")
+		{
+			users := admin.Group("/user")
+			{
+				users.Use(middleware.Auth())
+				users.POST("/add", apiHandler.UserAPIHandler.AddUser)
+				users.GET("/get/:id", apiHandler.UserAPIHandler.GetUserByID)
+				users.PUT("/update/:id", apiHandler.UserAPIHandler.UpdateUser)
+				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
+				users.GET("/list", apiHandler.UserAPIHandler.GetUserList)
+			}
+		}
+
 		machine := version.Group("/machine")
 		{
+			machine.Use(middleware.Auth())
 			machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
 			machine.GET("/get/:id", apiHandler.MachineAPIHandler.GetMachineByID)
 			machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
 			machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
 			machine.GET("/list", apiHandler.MachineAPIHandler.GetMachineList)
 		}
-// 		user := version.Group("/user")
-// 		{
-// 			user.POST("/login", apiHandler.UserAPIHandler.Login)
-// 			user.POST("/register", apiHandler.UserAPIHandler.Register)
 
-// 			user.Use(middleware.Auth())
+		user := version.Group("/user")
+		{
+			user.POST("/login", apiHandler.UserAPIHandler.Login)
+			user.POST("/register", apiHandler.UserAPIHandler.Register)
+
+			user.Use(middleware.Auth())
+			user.POST("/logout", apiHandler.UserAPIHandler.Logout)
 // 			user.GET("/tasks", apiHandler.UserAPIHandler.GetUserTaskCategory)
-// 		}
+		}
 
 // 		task := version.Group("/task")
 // 		{

@@ -7,7 +7,7 @@ import (
 
 type MachineService interface {
 	Store(Machine *model.Machine) error
-	Update(id int, category model.Machine) error
+	Update(id int, machine model.Machine) error
 	Delete(id int) error
 	GetByID(id int) (*model.Machine, error)
 	GetList() ([]model.Machine, error)
@@ -25,8 +25,8 @@ func (ms *machineService) Store(Machine *model.Machine) error {
 	return ms.db.Create(Machine).Error
 }
 
-func (ms *machineService) Update(id int, category model.Machine) error {
-	return ms.db.Where(id).Updates(category).Error
+func (ms *machineService) Update(id int, machine model.Machine) error {
+	return ms.db.Where(id).Updates(machine).Error
 }
 
 func (ms *machineService) Delete(id int) error {	

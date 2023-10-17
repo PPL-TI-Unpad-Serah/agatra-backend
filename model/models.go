@@ -37,3 +37,11 @@ type Title struct {
 	ID 			int
 	Name		string
 }
+
+type User struct {
+	ID 			int
+	Name		string
+	Email		string
+	Password	string
+	Role		string
+}

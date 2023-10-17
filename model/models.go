@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type Machine struct {
 	ID 			int
 	Title_ID	int
@@ -36,4 +38,19 @@ type Version struct {
 type Title struct {
 	ID 			int
 	Name		string
+}
+
+type User struct {
+	ID 			int
+	Name		string
+	Email		string
+	Password	string
+	Role		string
+}
+
+type Session struct {
+	ID     int       `gorm:"primaryKey" json:"id"`
+	Token  string    `json:"token"`
+	Email  string    `json:"email"`
+	Expiry time.Time `json:"expiry"`
 }

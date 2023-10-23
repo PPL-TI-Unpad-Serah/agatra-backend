@@ -4,7 +4,7 @@ import "time"
 
 type Machine struct {
 	ID 			int
-	Title_ID	int
+	Version_ID	int
 	Location_ID	int
 	Count		int
 	Price		int

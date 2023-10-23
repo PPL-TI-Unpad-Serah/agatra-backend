@@ -8,6 +8,10 @@ type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
+type UserResponse struct{
+	Message string `json:"message"`
+}
+
 func NewErrorResponse(msg string) ErrorResponse {
 	return ErrorResponse{
 		Error: msg,

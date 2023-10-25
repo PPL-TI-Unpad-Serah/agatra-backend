@@ -3,7 +3,7 @@ package main
 import (
 	"agatra/api"
 	"agatra/db"
-	"agatra/model"
+	// "agatra/model"
 	"agatra/service"
 	"agatra/middleware"
 	"log"

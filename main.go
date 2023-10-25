@@ -20,9 +20,6 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
-
-	// "github.com/gofiber/fiber/v2"
-	// "github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -35,7 +32,7 @@ type APIHandler struct {
 	MachineAPIHandler	api.MachineAPI
 	UserAPIHandler     	api.UserAPI
 	VersionAPIHandler	api.VersionAPI
-// 	CategoryAPIHandler api.CategoryAPI
+	TitleAPIHandler		api.TitleAPI
 // 	TaskAPIHandler     api.TaskAPI
 }
 
@@ -90,15 +87,18 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	userService := service.NewUserService(db)
 	sessionService := service.NewSessionService(db)
 	versionService := service.NewVersionService(db)
+	titleService := service.NewTitleService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
 	versionAPIHandler := api.NewVersionAPI(versionService)
+	titleAPIHandler := api.NewTitleAPI(titleService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
 		UserAPIHandler:     userAPIHandler,
-		VersionAPIHandler: versionAPIHandler,
+		VersionAPIHandler: 	versionAPIHandler,
+		TitleAPIHandler: 	titleAPIHandler,
 	}
 
 	alpha := gin.Group("/v0")
@@ -134,6 +134,16 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			version.PUT("/update/:id", apiHandler.VersionAPIHandler.UpdateVersion)
 			version.DELETE("/delete/:id", apiHandler.VersionAPIHandler.DeleteVersion)
 			version.GET("/list", apiHandler.VersionAPIHandler.GetVersionList)
+		}
+
+		title := alpha.Group("/title")
+		{
+			title.Use(middleware.Auth())
+			title.POST("/add", apiHandler.TitleAPIHandler.AddTitle)
+			title.GET("/get/:id", apiHandler.TitleAPIHandler.GetTitleByID)
+			title.PUT("/update/:id", apiHandler.TitleAPIHandler.UpdateTitle)
+			title.DELETE("/delete/:id", apiHandler.TitleAPIHandler.DeleteTitle)
+			title.GET("/list", apiHandler.TitleAPIHandler.GetTitleList)
 		}
 
 		user := alpha.Group("/user")

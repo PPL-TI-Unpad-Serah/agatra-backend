@@ -3,7 +3,7 @@ package main
 import (
 	"agatra/api"
 	"agatra/db"
-	"agatra/model"
+	// "agatra/model"
 	"agatra/service"
 	"agatra/middleware"
 	"log"
@@ -34,6 +34,7 @@ import (
 type APIHandler struct {
 	MachineAPIHandler	api.MachineAPI
 	UserAPIHandler     	api.UserAPI
+	VersionAPIHandler	api.VersionAPI
 // 	CategoryAPIHandler api.CategoryAPI
 // 	TaskAPIHandler     api.TaskAPI
 }
@@ -69,7 +70,7 @@ func main(){
 			panic(err)
 		}
 
-		conn.AutoMigrate(&model.Machine{}) //,&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
+		// conn.AutoMigrate(&model.Machine{}) //,&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
 
 		router = RunServer(conn, router)
 
@@ -88,18 +89,21 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	machineService := service.NewMachineService(db)
 	userService := service.NewUserService(db)
 	sessionService := service.NewSessionService(db)
+	versionService := service.NewVersionService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
+	versionAPIHandler := api.NewVersionAPI(versionService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
 		UserAPIHandler:     userAPIHandler,
+		VersionAPIHandler: versionAPIHandler,
 	}
 
-	version := gin.Group("/api/v1")
+	alpha := gin.Group("/v0")
 	{
-		admin := version.Group("/admin")
+		admin := alpha.Group("/admin")
 		{
 			users := admin.Group("/user")
 			{
@@ -112,7 +116,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			}
 		}
 
-		machine := version.Group("/machine")
+		machine := alpha.Group("/machine")
 		{
 			machine.Use(middleware.Auth())
 			machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
@@ -122,7 +126,17 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			machine.GET("/list", apiHandler.MachineAPIHandler.GetMachineList)
 		}
 
-		user := version.Group("/user")
+		version := alpha.Group("/version")
+		{
+			version.Use(middleware.Auth())
+			version.POST("/add", apiHandler.VersionAPIHandler.AddVersion)
+			version.GET("/get/:id", apiHandler.VersionAPIHandler.GetVersionByID)
+			version.PUT("/update/:id", apiHandler.VersionAPIHandler.UpdateVersion)
+			version.DELETE("/delete/:id", apiHandler.VersionAPIHandler.DeleteVersion)
+			version.GET("/list", apiHandler.VersionAPIHandler.GetVersionList)
+		}
+
+		user := alpha.Group("/user")
 		{
 			user.POST("/login", apiHandler.UserAPIHandler.Login)
 			user.POST("/register", apiHandler.UserAPIHandler.Register)
@@ -132,7 +146,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 // 			user.GET("/tasks", apiHandler.UserAPIHandler.GetUserTaskCategory)
 		}
 
-// 		task := version.Group("/task")
+// 		task := alpha.Group("/task")
 // 		{
 // 			task.Use(middleware.Auth())
 // 			task.POST("/add", apiHandler.TaskAPIHandler.AddTask)
@@ -143,7 +157,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 // 			task.GET("/category/:id", apiHandler.TaskAPIHandler.GetTaskListByCategory)
 // 		}
 
-// 		category := version.Group("/category")
+// 		category := alpha.Group("/category")
 // 		{
 // 			category.Use(middleware.Auth())
 // 			category.POST("/add", apiHandler.CategoryAPIHandler.AddCategory)

@@ -90,7 +90,7 @@ func (ma *machineAPI) GetMachineByID(m *gin.Context) {
 	m.JSON(http.StatusOK, machine)
 }
 
-func (ma *machineAPI) GetMachineList(m *gin.Context) {// TODO: answer here
+func (ma *machineAPI) GetMachineList(m *gin.Context) {
 	machine, err := ma.machineService.GetList()
 	if err != nil {
 		m.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})

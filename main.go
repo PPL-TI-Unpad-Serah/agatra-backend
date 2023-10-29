@@ -25,6 +25,7 @@ type APIHandler struct {
 	TitleAPIHandler		api.TitleAPI
 	LocationAPIHandler	api.LocationAPI
 	CityAPIHandler		api.CityAPI
+	CentreAPIHandler	api.CentreAPI
 }
 
 func main(){
@@ -81,6 +82,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	titleService := service.NewTitleService(db)
 	locationService := service.NewLocationService(db)
 	cityService := service.NewCityService(db)
+	centreService := service.NewCentreService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
@@ -88,6 +90,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	titleAPIHandler := api.NewTitleAPI(titleService)
 	locationAPIHandler := api.NewLocationAPI(locationService)
 	cityAPIHandler := api.NewCityAPI(cityService)
+	centreAPIHandler := api.NewCentreAPI(centreService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
@@ -96,6 +99,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		TitleAPIHandler: 	titleAPIHandler,
 		LocationAPIHandler: locationAPIHandler,
 		CityAPIHandler: 	cityAPIHandler,	
+		CentreAPIHandler: 	centreAPIHandler,
 	}
 
 	alpha := gin.Group("/v0")
@@ -122,6 +126,17 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			city.DELETE("/delete/:id", apiHandler.CityAPIHandler.DeleteCity)
 			city.GET("/list", apiHandler.CityAPIHandler.GetCityList)
 		}
+
+		centre := alpha.Group("/centre")
+		{
+			centre.Use(middleware.Auth())
+			centre.POST("/add", apiHandler.CentreAPIHandler.AddCentre)
+			centre.GET("/get/:id", apiHandler.CentreAPIHandler.GetCentreByID)
+			centre.PUT("/update/:id", apiHandler.CentreAPIHandler.UpdateCentre)
+			centre.DELETE("/delete/:id", apiHandler.CentreAPIHandler.DeleteCentre)
+			centre.GET("/list", apiHandler.CentreAPIHandler.GetCentreList)
+		}
+
 
 		location := alpha.Group("/location")
 		{

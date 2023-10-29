@@ -23,17 +23,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// func setRoutes(app *fiber.App){
-// 		app.Post("/login", routes.Login)
-// 		app.Post("/register", routes.Register)
-// }
-
 type APIHandler struct {
 	MachineAPIHandler	api.MachineAPI
 	UserAPIHandler     	api.UserAPI
 	VersionAPIHandler	api.VersionAPI
 	TitleAPIHandler		api.TitleAPI
-// 	TaskAPIHandler     api.TaskAPI
+	LocationAPIHandler	api.LocationAPI
 }
 
 func main(){
@@ -88,17 +83,20 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	sessionService := service.NewSessionService(db)
 	versionService := service.NewVersionService(db)
 	titleService := service.NewTitleService(db)
+	locationService := service.NewLocationService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
 	versionAPIHandler := api.NewVersionAPI(versionService)
 	titleAPIHandler := api.NewTitleAPI(titleService)
+	locationAPIHandler := api.NewLocationAPI(locationService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
 		UserAPIHandler:     userAPIHandler,
 		VersionAPIHandler: 	versionAPIHandler,
 		TitleAPIHandler: 	titleAPIHandler,
+		LocationAPIHandler: locationAPIHandler,
 	}
 
 	alpha := gin.Group("/v0")
@@ -114,6 +112,16 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
 				users.GET("/list", apiHandler.UserAPIHandler.GetUserList)
 			}
+		}
+
+		location := alpha.Group("/location")
+		{
+			location.Use(middleware.Auth())
+			location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
+			location.GET("/get/:id", apiHandler.LocationAPIHandler.GetLocationByID)
+			location.PUT("/update/:id", apiHandler.LocationAPIHandler.UpdateLocation)
+			location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
+			location.GET("/list", apiHandler.LocationAPIHandler.GetLocationList)
 		}
 
 		machine := alpha.Group("/machine")

@@ -9,14 +9,9 @@ import (
 	"log"
 	"os"
 
-	// "embed"
 	"fmt"
-	// "net/http"
 	"sync"
-	// "time"
-
 	_ "embed"
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
@@ -29,6 +24,7 @@ type APIHandler struct {
 	VersionAPIHandler	api.VersionAPI
 	TitleAPIHandler		api.TitleAPI
 	LocationAPIHandler	api.LocationAPI
+	CityAPIHandler		api.CityAPI
 }
 
 func main(){
@@ -84,12 +80,14 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	versionService := service.NewVersionService(db)
 	titleService := service.NewTitleService(db)
 	locationService := service.NewLocationService(db)
+	cityService := service.NewCityService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
 	versionAPIHandler := api.NewVersionAPI(versionService)
 	titleAPIHandler := api.NewTitleAPI(titleService)
 	locationAPIHandler := api.NewLocationAPI(locationService)
+	cityAPIHandler := api.NewCityAPI(cityService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
@@ -97,6 +95,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		VersionAPIHandler: 	versionAPIHandler,
 		TitleAPIHandler: 	titleAPIHandler,
 		LocationAPIHandler: locationAPIHandler,
+		CityAPIHandler: 	cityAPIHandler,	
 	}
 
 	alpha := gin.Group("/v0")
@@ -112,6 +111,16 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
 				users.GET("/list", apiHandler.UserAPIHandler.GetUserList)
 			}
+		}
+
+		city := alpha.Group("/city")
+		{
+			city.Use(middleware.Auth())
+			city.POST("/add", apiHandler.CityAPIHandler.AddCity)
+			city.GET("/get/:id", apiHandler.CityAPIHandler.GetCityByID)
+			city.PUT("/update/:id", apiHandler.CityAPIHandler.UpdateCity)
+			city.DELETE("/delete/:id", apiHandler.CityAPIHandler.DeleteCity)
+			city.GET("/list", apiHandler.CityAPIHandler.GetCityList)
 		}
 
 		location := alpha.Group("/location")

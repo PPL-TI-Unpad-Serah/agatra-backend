@@ -25,7 +25,7 @@ type APIHandler struct {
 	TitleAPIHandler		api.TitleAPI
 	LocationAPIHandler	api.LocationAPI
 	CityAPIHandler		api.CityAPI
-	CentreAPIHandler	api.CentreAPI
+	CenterAPIHandler	api.CenterAPI
 }
 
 func main(){
@@ -82,7 +82,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	titleService := service.NewTitleService(db)
 	locationService := service.NewLocationService(db)
 	cityService := service.NewCityService(db)
-	centreService := service.NewCentreService(db)
+	centerService := service.NewCenterService(db)
 
 	machineAPIHandler := api.NewMachineAPI(machineService)
 	userAPIHandler := api.NewUserAPI(userService, sessionService)
@@ -90,7 +90,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	titleAPIHandler := api.NewTitleAPI(titleService)
 	locationAPIHandler := api.NewLocationAPI(locationService)
 	cityAPIHandler := api.NewCityAPI(cityService)
-	centreAPIHandler := api.NewCentreAPI(centreService)
+	centerAPIHandler := api.NewCenterAPI(centerService)
 
 	apiHandler := APIHandler{
 		MachineAPIHandler: 	machineAPIHandler,
@@ -99,7 +99,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		TitleAPIHandler: 	titleAPIHandler,
 		LocationAPIHandler: locationAPIHandler,
 		CityAPIHandler: 	cityAPIHandler,	
-		CentreAPIHandler: 	centreAPIHandler,
+		CenterAPIHandler: 	centerAPIHandler,
 	}
 
 	alpha := gin.Group("/v0")
@@ -127,14 +127,14 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			city.GET("/list", apiHandler.CityAPIHandler.GetCityList)
 		}
 
-		centre := alpha.Group("/centre")
+		center := alpha.Group("/center")
 		{
-			centre.Use(middleware.Auth())
-			centre.POST("/add", apiHandler.CentreAPIHandler.AddCentre)
-			centre.GET("/get/:id", apiHandler.CentreAPIHandler.GetCentreByID)
-			centre.PUT("/update/:id", apiHandler.CentreAPIHandler.UpdateCentre)
-			centre.DELETE("/delete/:id", apiHandler.CentreAPIHandler.DeleteCentre)
-			centre.GET("/list", apiHandler.CentreAPIHandler.GetCentreList)
+			center.Use(middleware.Auth())
+			center.POST("/add", apiHandler.CenterAPIHandler.AddCenter)
+			center.GET("/get/:id", apiHandler.CenterAPIHandler.GetCenterByID)
+			center.PUT("/update/:id", apiHandler.CenterAPIHandler.UpdateCenter)
+			center.DELETE("/delete/:id", apiHandler.CenterAPIHandler.DeleteCenter)
+			center.GET("/list", apiHandler.CenterAPIHandler.GetCenterList)
 		}
 
 

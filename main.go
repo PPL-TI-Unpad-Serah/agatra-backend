@@ -3,7 +3,7 @@ package main
 import (
 	"agatra/api"
 	"agatra/db"
-	// "agatra/model"
+	"agatra/model"
 	"agatra/service"
 	"agatra/middleware"
 	"log"
@@ -59,7 +59,10 @@ func main(){
 			panic(err)
 		}
 
-		// conn.AutoMigrate(&model.Machine{}) //,&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
+		conn.AutoMigrate(&model.City{}, &model.Center{}, &model.Session{}, &model.User{}, &model.Title{})
+		conn.AutoMigrate(&model.Version{})
+		conn.AutoMigrate(&model.Machine{}) 
+		conn.AutoMigrate(&model.Location{})
 
 		router = RunServer(conn, router)
 

@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type City struct {
 	ID 			int				`gorm:"primaryKey" json:"city_id"`
@@ -15,9 +17,12 @@ type Center struct {
 
 type Machine struct {
 	ID 			int				`gorm:"primaryKey" json:"machine_id"`
-	Version		Version 		`gorm:"notNull;foreignKey:version_id" json:"version"`
+	VersionID	int				`gorm:"notNull" json:"version_id"`
+	Version		Version 		`gorm:"notNull;foreignKey:VersionID" json:"version"`
 	Count		int				`gorm:"notNull" json:"machine_count"`
 	Price		int				`json:"price"`
+	LocationID	int				`gorm:"notNull" json:"location_id"`
+	Location	Location		`gorm:"notNull;foreignKey:LocationID" json:"center"`
 }
 
 type Location struct {	
@@ -26,22 +31,24 @@ type Location struct {
 	Description	string			`json:"description"`
 	Lat 		float32			`json:"lat"`
 	Long		float32			`json:"long"`
-	Center		Center			`gorm:"notNull;foreignKey:center_id" json:"center"`
-	Machine		[]Machine		`gorm:"notNull;foreignKey:machine_id" json:"machine"`
-	City 		City			`gorm:"notNull;foreignKey:city_id" json:"city"`
+	CenterID	int				`gorm:"notNull" json:"center_id"`
+	Center		Center			`gorm:"notNull;foreignKey:CenterID" json:"center"`
+	Machine		[]Machine		`gorm:"notNull;foreignKey:LocationID" json:"machine"`
+	CityID		int				`gorm:"notNull" json:"city_id"`
+	City 		City			`gorm:"notNull;foreignKey:CityID" json:"city"`
 }
 
 type Version struct {
 	ID 			int				`gorm:"primaryKey" json:"version_id"`
-	Title		Title_compact	`gorm:"notNull;foreignKey:title_id" json:"title"`
+	TitleID		int				`gorm:"notNull" json:"title_id"`
+	Title		Title			`gorm:"notNull;foreignKey:TitleID" json:"title"`
 	Name		string			`gorm:"notNull" json:"name"`
 	Info		string			`gorm:"notNull" json:"info"`
 }
 
 type Title struct {
-	ID 			int				`gorm:"primaryKey" json:"title_id"`
-	Name		string			`gorm:"notNull" json:"name"`
-	Version		Version_compact	`gorm:"notNull;foreignKey:version_id" json:"version"`
+	ID 			int					`gorm:"primaryKey" json:"title_id"`
+	Name		string				`gorm:"notNull" json:"name"`
 }
 
 type User struct {
@@ -57,4 +64,16 @@ type Session struct {
 	Token  string    			`json:"token"`
 	Email  string    			`json:"email"`
 	Expiry time.Time 			`json:"expiry"`
+}
+type Versions struct {
+	ID 			int				`gorm:"primaryKey" json:"version_id"`
+	Title		Title_compact	`gorm:"notNull;foreignKey:id" json:"title"`
+	Name		string			`gorm:"notNull" json:"name"`
+	Info		string			`gorm:"notNull" json:"info"`
+}
+
+type Titles struct {
+	ID 			int					`gorm:"primaryKey" json:"title_id"`
+	Name		string				`gorm:"notNull" json:"name"`
+	Version		[]Version_compact	`gorm:"notNull;foreignKey:id" json:"version"`
 }

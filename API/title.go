@@ -75,19 +75,23 @@ func (ta *titleAPI) DeleteTitle(t *gin.Context) {
 }
 
 func (ta *titleAPI) GetTitleByID(t *gin.Context) {
-	TitleID, err := strconv.Atoi(t.Param("id"))
+	titleID, err := strconv.Atoi(t.Param("id"))
 	if err != nil {
 		t.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Title ID"})
 		return
 	}
 
-	Title, err := ta.titleService.GetByID(TitleID)
+	title, err := ta.titleService.GetByID(titleID)
 	if err != nil {
 		t.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	t.JSON(http.StatusOK, Title)
+	var result model.TitleResponse
+	result.Title = *title 
+	result.Message = "Title with ID " + strconv.Itoa(titleID) + " Found"
+
+	t.JSON(http.StatusOK, result)
 }
 
 func (ta *titleAPI) GetTitleList(t *gin.Context) {
@@ -97,5 +101,9 @@ func (ta *titleAPI) GetTitleList(t *gin.Context) {
 		return
 	}
 
-	t.JSON(http.StatusOK, Title)
+	var result model.TitleArrayResponse
+	result.Titles = Title 
+	result.Message = "Getting All Titles Success"
+
+	t.JSON(http.StatusOK, result)
 }

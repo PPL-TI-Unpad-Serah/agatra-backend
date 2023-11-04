@@ -87,15 +87,23 @@ func (ma *machineAPI) GetMachineByID(m *gin.Context) {
 		return
 	}
 
-	m.JSON(http.StatusOK, machine)
+	var result model.MachineResponse
+	result.Machine = *machine 
+	result.Message = "Machine with ID " + strconv.Itoa(machineID) + " Found"
+
+	m.JSON(http.StatusOK, result)
 }
 
 func (ma *machineAPI) GetMachineList(m *gin.Context) {
-	machine, err := ma.machineService.GetList()
+	Machine, err := ma.machineService.GetList()
 	if err != nil {
 		m.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	m.JSON(http.StatusOK, machine)
+	var result model.MachineArrayResponse
+	result.Machines = Machine 
+	result.Message = "Getting All Machines Success"
+
+	m.JSON(http.StatusOK, result)
 }

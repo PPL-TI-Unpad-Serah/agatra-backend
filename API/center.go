@@ -75,19 +75,23 @@ func (cra *centerAPI) DeleteCenter(cr *gin.Context) {
 }
 
 func (cra *centerAPI) GetCenterByID(cr *gin.Context) {
-	CenterID, err := strconv.Atoi(cr.Param("id"))
+	centerID, err := strconv.Atoi(cr.Param("id"))
 	if err != nil {
 		cr.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Center ID"})
 		return
 	}
 
-	Center, err := cra.centerService.GetByID(CenterID)
+	center, err := cra.centerService.GetByID(centerID)
 	if err != nil {
 		cr.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	cr.JSON(http.StatusOK, Center)
+	var result model.CenterResponse
+	result.Center = *center 
+	result.Message = "Center with ID " + strconv.Itoa(centerID) + " Found"
+
+	cr.JSON(http.StatusOK, result)
 }
 
 func (cra *centerAPI) GetCenterList(cr *gin.Context) {
@@ -97,5 +101,9 @@ func (cra *centerAPI) GetCenterList(cr *gin.Context) {
 		return
 	}
 
-	cr.JSON(http.StatusOK, Center)
+	var result model.CenterArrayResponse
+	result.Centers = Center 
+	result.Message = "Getting All Centers Success"
+
+	cr.JSON(http.StatusOK, result)
 }

@@ -87,7 +87,11 @@ func (va *versionAPI) GetVersionByID(v *gin.Context) {
 		return
 	}
 
-	v.JSON(http.StatusOK, Version)
+	var result model.VersionResponse
+	result.Version = *Version 
+	result.Message = "Version with ID " + strconv.Itoa(VersionID) + " Found"
+
+	v.JSON(http.StatusOK, result)
 }
 
 func (va *versionAPI) GetVersionList(v *gin.Context) {
@@ -97,5 +101,9 @@ func (va *versionAPI) GetVersionList(v *gin.Context) {
 		return
 	}
 
-	v.JSON(http.StatusOK, Version)
+	var result model.VersionArrayResponse
+	result.Versions = Version 
+	result.Message = "Getting All Versions Success"
+
+	v.JSON(http.StatusOK, result)
 }

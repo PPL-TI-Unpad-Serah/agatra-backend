@@ -217,7 +217,11 @@ func (ua *userAPI) GetUserByID(u *gin.Context) {
 		return
 	}
 
-	u.JSON(http.StatusOK, User)
+	var result model.UserResponse
+	result.User = *User 
+	result.Message = "User with ID " + strconv.Itoa(UserID) + " Found"
+
+	u.JSON(http.StatusOK, result)
 }
 
 func (ua *userAPI) GetUserList(u *gin.Context) {
@@ -227,5 +231,9 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 		return
 	}
 
-	u.JSON(http.StatusOK, User)
+	var result model.UserArrayResponse
+	result.Users = User 
+	result.Message = "Getting All Users Success"
+
+	u.JSON(http.StatusOK, result)
 }

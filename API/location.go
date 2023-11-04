@@ -87,7 +87,11 @@ func (ta *locationAPI) GetLocationByID(l *gin.Context) {
 		return
 	}
 
-	l.JSON(http.StatusOK, Location)
+	var result model.LocationResponse
+	result.Location = *Location 
+	result.Message = "Location with ID " + strconv.Itoa(LocationID) + " Found"
+
+	l.JSON(http.StatusOK, result)
 }
 
 func (ta *locationAPI) GetLocationList(l *gin.Context) {
@@ -97,5 +101,9 @@ func (ta *locationAPI) GetLocationList(l *gin.Context) {
 		return
 	}
 
-	l.JSON(http.StatusOK, Location)
+	var result model.LocationArrayResponse
+	result.Locations = Location 
+	result.Message = "Getting All Locations Success"
+
+	l.JSON(http.StatusOK, result)
 }

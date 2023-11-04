@@ -75,19 +75,23 @@ func (cya *cityAPI) DeleteCity(cy *gin.Context) {
 }
 
 func (cya *cityAPI) GetCityByID(cy *gin.Context) {
-	CityID, err := strconv.Atoi(cy.Param("id"))
+	cityID, err := strconv.Atoi(cy.Param("id"))
 	if err != nil {
 		cy.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid City ID"})
 		return
 	}
 
-	City, err := cya.cityService.GetByID(CityID)
+	city, err := cya.cityService.GetByID(cityID)
 	if err != nil {
 		cy.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	cy.JSON(http.StatusOK, City)
+	var result model.CityResponse
+	result.City = *city 
+	result.Message = "City with ID " + strconv.Itoa(cityID) + " Found"
+
+	cy.JSON(http.StatusOK, result)
 }
 
 func (cya *cityAPI) GetCityList(cy *gin.Context) {
@@ -97,5 +101,9 @@ func (cya *cityAPI) GetCityList(cy *gin.Context) {
 		return
 	}
 
-	cy.JSON(http.StatusOK, City)
+	var result model.CityArrayResponse
+	result.Cities = City 
+	result.Message = "Getting All Cities Success"
+
+	cy.JSON(http.StatusOK, result)
 }

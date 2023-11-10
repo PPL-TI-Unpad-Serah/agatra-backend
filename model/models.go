@@ -66,6 +66,8 @@ type Session struct {
 	Email  string    			`json:"email"`
 	Expiry time.Time 			`json:"expiry"`
 }
+
+
 type Versions struct {
 	ID 			int				`gorm:"primaryKey" json:"version_id"`
 	Title		Title_compact	`gorm:"notNull;foreignKey:id" json:"title"`

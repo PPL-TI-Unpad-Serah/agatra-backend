@@ -17,6 +17,14 @@ type Title_compact struct{
 	Name	string			`gorm:"notNull" json:"name"`
 }
 
+type User_compact struct {
+	ID 			int				`gorm:"primaryKey" json:"user_id"`
+	Name		string			`gorm:"notNull" json:"name"`	
+	Email		string			`gorm:"notNull" json:"email"`
+	Password	string			`gorm:"notNull" json:"password"`
+	Role		string			`gorm:"notNull" json:"role"`
+}
+
 func LocationToCompact(lf Location) Location_compact{
 	compact := Location_compact{
 		ID: lf.ID,
@@ -44,3 +52,19 @@ func TitleToCompact(tf Title) Title_compact{
 		Name: 	tf.Name,
 	}
 }
+
+func UserToCompact(uf User) User_compact{
+	return User_compact{
+		ID: 	uf.ID,
+		Name: 	uf.Name,
+		Email:	uf.Email,
+		Role:	uf.Role,
+	}
+}
+
+// func MassCompactUser(uf []User) []User_compact{
+// 	var result []model.User
+// 	for _, data := range uf {
+// 		UserToCompact(data)
+// 	}
+// }

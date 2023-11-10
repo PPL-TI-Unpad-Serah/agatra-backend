@@ -49,6 +49,7 @@ type Version struct {
 type Title struct {
 	ID 			int					`gorm:"primaryKey" json:"title_id"`
 	Name		string				`gorm:"notNull" json:"name"`
+	Version		[]Version			`gorm:"notNull; foreignKey:TitleID" json:"version"`
 }
 
 type User struct {

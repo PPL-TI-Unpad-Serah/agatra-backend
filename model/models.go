@@ -49,6 +49,7 @@ type Version struct {
 type Title struct {
 	ID 			int					`gorm:"primaryKey" json:"title_id"`
 	Name		string				`gorm:"notNull" json:"name"`
+	Version		[]Version			`gorm:"notNull; foreignKey:TitleID" json:"version"`
 }
 
 type User struct {
@@ -65,6 +66,8 @@ type Session struct {
 	Email  string    			`json:"email"`
 	Expiry time.Time 			`json:"expiry"`
 }
+
+
 type Versions struct {
 	ID 			int				`gorm:"primaryKey" json:"version_id"`
 	Title		Title_compact	`gorm:"notNull;foreignKey:id" json:"title"`

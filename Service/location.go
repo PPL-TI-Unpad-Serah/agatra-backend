@@ -2,6 +2,8 @@ package service
 
 import (
 	"agatra/model"
+	// "errors"
+
 	"gorm.io/gorm"
 )
 
@@ -11,6 +13,7 @@ type LocationService interface {
 	Delete(id int) error
 	GetByID(id int) (*model.Location, error)
 	GetList() ([]model.Location, error)
+	GetListNearby(lat float64, long float64) ([]model.Location_range, error)
 }
 
 type locationService struct {
@@ -55,3 +58,18 @@ func (ls *locationService) GetList() ([]model.Location, error) {
 	}
 	return result, nil 
 }
+
+func (ls *locationService) GetListNearby(lat float64, long float64) ([]model.Location_range, error) {
+	var result []model.Location_range
+	rows:= ls.db.Table("locations").Order("distance asc").Select("id", "name", "description", "lat", "long", gorm.Expr("(lat - ?) * (lat - ?) + (long - ?) * (long - ?) as distance", lat, lat, long, long)).Scan(&result)
+	if rows.Error != nil{
+		return []model.Location_range{}, rows.Error
+	}
+	// defer rows.Close()
+
+	// for rows.Next() { 
+	// 	ls.db.ScanRows(rows, &result)
+	// }
+	return result, nil 
+}
+

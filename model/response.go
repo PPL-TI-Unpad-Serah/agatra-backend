@@ -48,6 +48,11 @@ type LocationArrayResponse struct{
 	Locations 	[]Location	
 }
 
+type LocationRangeResponse struct{
+	Message 	string 	
+	Locations 	[]Location_range
+}
+
 type VersionResponse struct{
 	Message 	string 	
 	Version 	Version	

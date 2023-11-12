@@ -1,6 +1,7 @@
 package model
 
 import (
+	"math"
 	"time"
 )
 
@@ -29,8 +30,8 @@ type Location struct {
 	ID 			int				`gorm:"primaryKey" json:"location_id"`
 	Name 		string			`gorm:"notNull" json:"name"`
 	Description	string			`json:"description"`
-	Lat 		float32			`json:"lat"`
-	Long		float32			`json:"long"`
+	Lat 		float64			`json:"lat"`
+	Long		float64			`json:"long"`
 	CenterID	int				`gorm:"notNull" json:"center_id"`
 	Center		Center			`gorm:"notNull;foreignKey:CenterID" json:"center"`
 	Machine		[]Machine		`gorm:"notNull;foreignKey:LocationID" json:"machine"`
@@ -79,4 +80,21 @@ type Titles struct {
 	ID 			int					`gorm:"primaryKey" json:"title_id"`
 	Name		string				`gorm:"notNull" json:"name"`
 	Version		[]Version_compact	`gorm:"notNull;foreignKey:id" json:"version"`
+}
+
+type Location_range struct{
+	ID 			int				
+	Name 		string			
+	Description	string			
+	Lat 		float64			
+	Long		float64			
+	Distance	float64			
+}
+
+func (l *Location)CheckRange(lat float64, long float64) Location_range{
+	return Location_range{
+		Lat: l.Lat,
+		Long: l.Long,
+		Distance: math.Sqrt((l.Lat - lat) * (l.Lat - lat)) + ((l.Long - long) * (l.Long - long)),
+	}
 }

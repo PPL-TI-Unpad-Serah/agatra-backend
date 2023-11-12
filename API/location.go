@@ -15,6 +15,7 @@ type LocationAPI interface {
 	DeleteLocation(l *gin.Context)
 	GetLocationByID(l *gin.Context)
 	GetLocationList(l *gin.Context)
+	GetLocationNearby(l *gin.Context)
 }
 
 type locationAPI struct {
@@ -105,5 +106,29 @@ func (ta *locationAPI) GetLocationList(l *gin.Context) {
 	result.Locations = Location 
 	result.Message = "Getting All Locations Success"
 
+	l.JSON(http.StatusOK, result)
+}
+
+func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
+	Lat, err := strconv.ParseFloat(l.Param("lat"), 64)
+	if err != nil {
+		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Lat"})
+		return
+	}
+	Long, err := strconv.ParseFloat(l.Param("long"), 64)
+	if err != nil {
+		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Long"})
+		return
+	}
+
+	Location, err := ta.locationService.GetListNearby(Lat, Long)
+	if err != nil {
+		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+		return
+	}
+	var result model.LocationRangeResponse
+	result.Locations = Location
+	result.Message = "Location sorted by distance"
+	
 	l.JSON(http.StatusOK, result)
 }

@@ -105,7 +105,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		CenterAPIHandler: 	centerAPIHandler,
 	}
 
-	alpha := gin.Group("/v0")
+	alpha := gin.Group("/agatra")
 	{
 		admin := alpha.Group("/admin")
 		{
@@ -184,6 +184,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		{
 			location.GET("/get/:id", apiHandler.LocationAPIHandler.GetLocationByID)
 			location.GET("/list", apiHandler.LocationAPIHandler.GetLocationList)
+			location.GET("/nearby/:lat/:long", apiHandler.LocationAPIHandler.GetLocationNearby)
 		}
 
 		machine := alpha.Group("/machine")

@@ -93,6 +93,18 @@ type SessionArrayResponse struct{
 	Sessions 	[]Session	
 }
 
+type LoginResponse struct{
+	ApiKey 		string
+	User		User
+}
+
+type RegisterInput struct{
+	Username			string
+	Email				string
+	Password			string
+	Confirm_password	string
+}
+
 func NewErrorResponse(msg string) ErrorResponse {
 	return ErrorResponse{
 		Error: msg,

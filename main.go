@@ -204,14 +204,10 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			title.GET("/get/:id", apiHandler.TitleAPIHandler.GetTitleByID)
 			title.GET("/list", apiHandler.TitleAPIHandler.GetTitleList)
 		}
-
-		user := alpha.Group("/user")
-		{
-			user.POST("/login", apiHandler.UserAPIHandler.Login)
-			user.POST("/register", apiHandler.UserAPIHandler.Register)
-			user.Use(middleware.Auth())
-			user.POST("/logout", apiHandler.UserAPIHandler.Logout)
-		}
+		alpha.POST("/login", apiHandler.UserAPIHandler.Login)
+		alpha.POST("/register", apiHandler.UserAPIHandler.Register)
+		alpha.Use(middleware.Auth())
+		alpha.POST("/logout", apiHandler.UserAPIHandler.Logout)
 	}
 
 	return gin

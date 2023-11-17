@@ -99,19 +99,22 @@ func (ua *userAPI) Login(u *gin.Context) {
 	u.SetCookie("session_token", tokenString, int(claims.ExpiresAt), "/", "localhost", false, true)
 
 	u.JSON(http.StatusOK, gin.H{
-		"email": claims.Email,
+		"apiKey": tokenString,
 		"message": "login success",
 	})
 }
 
 func (ua *userAPI) Register(u *gin.Context) {
-	var user model.User
+	var user model.RegisterInput
 	if err := u.BindJSON(&user); err != nil {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("invalid decode json"))
 		return
 	}
-	if user.Email == "" || user.Password == "" || user.Name == "" {
+	if user.Email == "" || user.Password == "" || user.Username == "" {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("register data is empty"))
+		return
+	}else if user.Password != user.Confirm_password{
+		u.JSON(http.StatusBadRequest, model.NewErrorResponse("password and confirm password doesn't match"))
 		return
 	}
 	_, exists := ua.userService.GetByEmail(user.Email)
@@ -119,8 +122,14 @@ func (ua *userAPI) Register(u *gin.Context) {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("email already exists"))
 		return
 	}
-	user.Role = "member"
-	err := ua.userService.Store(&user)
+
+	var result model.User = model.User{
+		Name:  user.Username,
+		Email: user.Email,
+		Password: user.Password,
+		Role: "member",
+	}
+	err := ua.userService.Store(&result)
 	if err != nil {
 		u.JSON(http.StatusInternalServerError, model.NewErrorResponse(err.Error()))
 		return

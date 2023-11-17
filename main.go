@@ -109,58 +109,51 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	{
 		admin := alpha.Group("/admin")
 		{
-			users := admin.Group("/user")
+			users := admin.Group("/user", middleware.AuthAdmin(db))
 			{
-				users.Use(middleware.Auth())
 				users.POST("/add", apiHandler.UserAPIHandler.AddUser)
 				users.PUT("/update/:id", apiHandler.UserAPIHandler.UpdateUser)
 				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
 			}
 
-			city := alpha.Group("/city")
+			city := alpha.Group("/city", middleware.AuthAdmin(db))
 			{
-				city.Use(middleware.Auth())
 				city.POST("/add", apiHandler.CityAPIHandler.AddCity)
 				city.PUT("/update/:id", apiHandler.CityAPIHandler.UpdateCity)
 				city.DELETE("/delete/:id", apiHandler.CityAPIHandler.DeleteCity)
 			}
 
-			center := alpha.Group("/center")
+			center := alpha.Group("/center", middleware.AuthAdmin(db))
 			{
-				center.Use(middleware.Auth())
 				center.POST("/add", apiHandler.CenterAPIHandler.AddCenter)
 				center.PUT("/update/:id", apiHandler.CenterAPIHandler.UpdateCenter)
 				center.DELETE("/delete/:id", apiHandler.CenterAPIHandler.DeleteCenter)
 			}
 
 
-			location := alpha.Group("/location")
+			location := alpha.Group("/location", middleware.AuthAdmin(db))
 			{
-				location.Use(middleware.Auth())
 				location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
 				location.PUT("/update/:id", apiHandler.LocationAPIHandler.UpdateLocation)
 				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 
-			machine := alpha.Group("/machine")
+			machine := alpha.Group("/machine", middleware.AuthAdmin(db))
 			{
-				machine.Use(middleware.Auth())
 				machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
 				machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
 				machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
 			}
 
-			version := alpha.Group("/version")
+			version := alpha.Group("/version", middleware.AuthAdmin(db))
 			{
-				version.Use(middleware.Auth())
 				version.POST("/add", apiHandler.VersionAPIHandler.AddVersion)
 				version.PUT("/update/:id", apiHandler.VersionAPIHandler.UpdateVersion)
 				version.DELETE("/delete/:id", apiHandler.VersionAPIHandler.DeleteVersion)
 			}
 
-			title := alpha.Group("/title")
+			title := alpha.Group("/title", middleware.AuthAdmin(db))
 			{
-				title.Use(middleware.Auth())
 				title.POST("/add", apiHandler.TitleAPIHandler.AddTitle)
 				title.PUT("/update/:id", apiHandler.TitleAPIHandler.UpdateTitle)
 				title.DELETE("/delete/:id", apiHandler.TitleAPIHandler.DeleteTitle)

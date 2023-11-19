@@ -29,6 +29,7 @@ type APIHandler struct {
 }
 
 func main(){
+	gin.SetMode(gin.ReleaseMode)
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Print("Missing .env file. Probably okay on dockerized environment")

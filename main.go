@@ -109,7 +109,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	{
 		admin := alpha.Group("/admin")
 		{
-			users := admin.Group("/user")
+			users := admin.Group("/users")
 			{
 				users.Use(middleware.Auth())
 				users.POST("/add", apiHandler.UserAPIHandler.AddUser)
@@ -117,7 +117,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
 			}
 
-			city := alpha.Group("/city")
+			city := alpha.Group("/cities")
 			{
 				city.Use(middleware.Auth())
 				city.POST("/add", apiHandler.CityAPIHandler.AddCity)
@@ -125,7 +125,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				city.DELETE("/delete/:id", apiHandler.CityAPIHandler.DeleteCity)
 			}
 
-			center := alpha.Group("/center")
+			center := alpha.Group("/arcade_centers")
 			{
 				center.Use(middleware.Auth())
 				center.POST("/add", apiHandler.CenterAPIHandler.AddCenter)
@@ -134,7 +134,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			}
 
 
-			location := alpha.Group("/location")
+			location := alpha.Group("/arcade_locations")
 			{
 				location.Use(middleware.Auth())
 				location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
@@ -142,7 +142,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 
-			machine := alpha.Group("/machine")
+			machine := alpha.Group("/arcade_machines")
 			{
 				machine.Use(middleware.Auth())
 				machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
@@ -150,7 +150,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
 			}
 
-			version := alpha.Group("/version")
+			version := alpha.Group("/game_title_versions")
 			{
 				version.Use(middleware.Auth())
 				version.POST("/add", apiHandler.VersionAPIHandler.AddVersion)
@@ -158,7 +158,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				version.DELETE("/delete/:id", apiHandler.VersionAPIHandler.DeleteVersion)
 			}
 
-			title := alpha.Group("/title")
+			title := alpha.Group("/game_titles")
 			{
 				title.Use(middleware.Auth())
 				title.POST("/add", apiHandler.TitleAPIHandler.AddTitle)
@@ -167,39 +167,39 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			}
 		}
 
-		city := alpha.Group("/city")
+		city := alpha.Group("/cities")
 		{
 			city.GET("/get/:id", apiHandler.CityAPIHandler.GetCityByID)
 			city.GET("/list", apiHandler.CityAPIHandler.GetCityList)
 		}
 
-		center := alpha.Group("/center")
+		center := alpha.Group("/arcade_centers")
 		{
 			center.GET("/get/:id", apiHandler.CenterAPIHandler.GetCenterByID)
 			center.GET("/list", apiHandler.CenterAPIHandler.GetCenterList)
 		}
 
 
-		location := alpha.Group("/location")
+		location := alpha.Group("/arcade_locations")
 		{
 			location.GET("/get/:id", apiHandler.LocationAPIHandler.GetLocationByID)
 			location.GET("/list", apiHandler.LocationAPIHandler.GetLocationList)
 			location.GET("/nearby/:lat/:long", apiHandler.LocationAPIHandler.GetLocationNearby)
 		}
 
-		machine := alpha.Group("/machine")
+		machine := alpha.Group("/arcade_machines")
 		{
 			machine.GET("/get/:id", apiHandler.MachineAPIHandler.GetMachineByID)
 			machine.GET("/list", apiHandler.MachineAPIHandler.GetMachineList)
 		}
 
-		version := alpha.Group("/version")
+		version := alpha.Group("/game_title_versions")
 		{
 			version.GET("/get/:id", apiHandler.VersionAPIHandler.GetVersionByID)
 			version.GET("/list", apiHandler.VersionAPIHandler.GetVersionList)
 		}
 
-		title := alpha.Group("/title")
+		title := alpha.Group("/game_titles")
 		{
 			title.GET("/get/:id", apiHandler.TitleAPIHandler.GetTitleByID)
 			title.GET("/list", apiHandler.TitleAPIHandler.GetTitleList)

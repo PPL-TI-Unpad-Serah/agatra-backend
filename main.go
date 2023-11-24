@@ -1,10 +1,10 @@
 package main
 
 import (
-	"agatra/api"
+	api "agatra/API" 
 	"agatra/db"
 	"agatra/model"
-	"agatra/service"
+	service "agatra/Service" 
 	"agatra/middleware"
 	"log"
 	"os"

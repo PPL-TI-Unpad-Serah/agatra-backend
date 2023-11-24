@@ -116,6 +116,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				users.PUT("/update/:id", apiHandler.UserAPIHandler.UpdateUser)
 				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
 				users.GET("/privileged", apiHandler.UserAPIHandler.GetPrivileged)
+				users.GET("/search", apiHandler.UserAPIHandler.SearchName)
 			}
 
 			city := admin.Group("/cities")

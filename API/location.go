@@ -16,6 +16,7 @@ type LocationAPI interface {
 	GetLocationByID(l *gin.Context)
 	GetLocationList(l *gin.Context)
 	GetLocationNearby(l *gin.Context)
+	SearchLocation(l *gin.Context)
 }
 
 type locationAPI struct {
@@ -130,5 +131,20 @@ func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
 	result.Locations = Location
 	result.Message = "Location sorted by distance"
 	
+	l.JSON(http.StatusOK, result)
+}
+
+func (la *locationAPI) SearchLocation(l *gin.Context) {
+	name := l.Param("name")
+	location, err := la.locationService.SearchName(name)
+	if err != nil {
+		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	var result model.LocationArrayResponse
+	result.Locations = location 
+	result.Message = "Getting All Privileged locations Success"
+
 	l.JSON(http.StatusOK, result)
 }

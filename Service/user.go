@@ -12,6 +12,8 @@ type UserService interface {
 	GetByID(id int) (*model.User, error)
 	GetList() ([]model.User, error)
 	GetByEmail(Email string) (model.User, bool)
+	GetPrivileged() ([]model.User, error)
+	SearchName(name string) ([]model.User, error)
 }
 
 type userService struct {
@@ -57,6 +59,20 @@ func (us *userService) GetList() ([]model.User, error) {
 	return result, nil 
 }
 
+func (us *userService) GetPrivileged() ([]model.User, error) {
+	var result []model.User
+	rows, err := us.db.Where("role = ?", "admin").Or("role = ?", "maintainer").Table("users").Rows()
+	if err != nil{
+		return []model.User{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() { 
+		us.db.ScanRows(rows, &result)
+	}
+	return result, nil 
+}
+
 func (us *userService) GetByEmail(email string) (model.User, bool) {
 	var result model.User
 	err := us.db.Where("email = ?", email).First(&result).Error
@@ -64,4 +80,18 @@ func (us *userService) GetByEmail(email string) (model.User, bool) {
 		return model.User{}, false
 	}
 	return result, true
+}
+
+func (us *userService) SearchName(name string) ([]model.User, error){
+	var result []model.User
+	rows, err := us.db.Where("name LIKE ?", "%" + name + "%").Table("users").Rows()
+	if err != nil{
+		return []model.User{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() { 
+		us.db.ScanRows(rows, &result)
+	}
+	return result, nil 
 }

@@ -12,6 +12,7 @@ type UserService interface {
 	GetByID(id int) (*model.User, error)
 	GetList() ([]model.User, error)
 	GetByEmail(Email string) (model.User, bool)
+	GetPrivileged() ([]model.User, error)
 }
 
 type userService struct {
@@ -46,6 +47,20 @@ func (us *userService) GetByID(id int) (*model.User, error) {
 func (us *userService) GetList() ([]model.User, error) {
 	var result []model.User
 	rows, err := us.db.Table("users").Rows()
+	if err != nil{
+		return []model.User{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() { 
+		us.db.ScanRows(rows, &result)
+	}
+	return result, nil 
+}
+
+func (us *userService) GetPrivileged() ([]model.User, error) {
+	var result []model.User
+	rows, err := us.db.Where("role = ?", "admin").Or("role = ?", "maintainer").Table("users").Rows()
 	if err != nil{
 		return []model.User{}, err
 	}

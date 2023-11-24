@@ -107,7 +107,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 
 	alpha := gin.Group("/agatra")
 	{
-		admin := alpha.Group("/admin")
+		admin := alpha.Group("/admin", middleware.AuthAdmin(db))
 		{
 			users := admin.Group("/users")
 			{

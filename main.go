@@ -29,6 +29,7 @@ type APIHandler struct {
 }
 
 func main(){
+	// gin.SetMode(gin.ReleaseMode)
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Print("Missing .env file. Probably okay on dockerized environment")
@@ -138,13 +139,6 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 
-			machine := admin.Group("/arcade_machines")
-			{
-				machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
-				machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
-				machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
-			}
-
 			version := admin.Group("/game_title_versions")
 			{
 				version.POST("/add", apiHandler.VersionAPIHandler.AddVersion)
@@ -157,6 +151,23 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				title.POST("/add", apiHandler.TitleAPIHandler.AddTitle)
 				title.PUT("/update/:id", apiHandler.TitleAPIHandler.UpdateTitle)
 				title.DELETE("/delete/:id", apiHandler.TitleAPIHandler.DeleteTitle)
+			}
+		}
+
+		maintainer := alpha.Group("/maintainer", middleware.AuthMaintainer(db))
+		{
+			machine := maintainer.Group("/arcade_machines")
+			{
+				machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
+				machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
+				machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
+			}
+			
+			location := maintainer.Group("/arcade_locations")
+			{
+				location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
+				location.PUT("/update/:id", apiHandler.LocationAPIHandler.UpdateLocation)
+				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 		}
 

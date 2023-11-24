@@ -14,6 +14,7 @@ type LocationService interface {
 	GetByID(id int) (*model.Location, error)
 	GetList() ([]model.Location, error)
 	GetListNearby(lat float64, long float64) ([]model.Location_range, error)
+	SearchName(name string) ([]model.Location, error)
 }
 
 type locationService struct {
@@ -70,6 +71,19 @@ func (ls *locationService) GetListNearby(lat float64, long float64) ([]model.Loc
 	// for rows.Next() { 
 	// 	ls.db.ScanRows(rows, &result)
 	// }
+	return result, nil 
+}
+func (ls *locationService) SearchName(name string) ([]model.Location, error){
+	var result []model.Location
+	rows, err := ls.db.Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
+	if err != nil{
+		return []model.Location{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() { 
+		ls.db.ScanRows(rows, &result)
+	}
 	return result, nil 
 }
 

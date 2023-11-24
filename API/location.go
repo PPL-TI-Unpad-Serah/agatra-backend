@@ -1,8 +1,8 @@
-package api
+package API
 
 import (
 	"agatra/model"
-	"agatra/service"
+	service "agatra/Service" 
 	"net/http"
 	"strconv"
 

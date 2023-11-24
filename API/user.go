@@ -22,6 +22,7 @@ type UserAPI interface {
 	GetUserByID(u *gin.Context)
 	GetUserList(u *gin.Context)
 	GetPrivileged(u *gin.Context)
+	SearchName(u *gin.Context)
 }
 
 type userAPI struct {
@@ -250,6 +251,21 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 
 func (ua *userAPI) GetPrivileged(u *gin.Context) {
 	User, err := ua.userService.GetPrivileged()
+	if err != nil {
+		u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	var result model.UserArrayResponse
+	result.Users = User 
+	result.Message = "Getting All Privileged Users Success"
+
+	u.JSON(http.StatusOK, result)
+}
+
+func (ua *userAPI) SearchName(u *gin.Context) {
+	name := u.Param("name")
+	User, err := ua.userService.SearchName(name)
 	if err != nil {
 		u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return

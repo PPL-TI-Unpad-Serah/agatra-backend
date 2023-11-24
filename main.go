@@ -180,6 +180,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			location.GET("/get/:id", apiHandler.LocationAPIHandler.GetLocationByID)
 			location.GET("/list", apiHandler.LocationAPIHandler.GetLocationList)
 			location.GET("/nearby/:lat/:long", apiHandler.LocationAPIHandler.GetLocationNearby)
+			location.GET("/search", apiHandler.LocationAPIHandler.SearchLocation)
 		}
 
 		machine := alpha.Group("/arcade_machines")

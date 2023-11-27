@@ -21,37 +21,37 @@ func NewCityService(db *gorm.DB) *cityService {
 	return &cityService{db}
 }
 
-func (vs *cityService) Store(city *model.City) error {
-	return vs.db.Create(city).Error
+func (cs *cityService) Store(city *model.City) error {
+	return cs.db.Create(city).Error
 }
 
-func (vs *cityService) Update(id int, city model.City) error {
-	return vs.db.Where(id).Updates(city).Error
+func (cs *cityService) Update(id int, city model.City) error {
+	return cs.db.Where(id).Updates(city).Error
 }
 
-func (vs *cityService) Delete(id int) error {	
-	return vs.db.Where(id).Delete(&model.City{}).Error 
+func (cs *cityService) Delete(id int) error {	
+	return cs.db.Where(id).Delete(&model.City{}).Error 
 }
 
-func (vs *cityService) GetByID(id int) (*model.City, error) {
+func (cs *cityService) GetByID(id int) (*model.City, error) {
 	var City model.City
-	err := vs.db.Where("id = ?", id).First(&City).Error
+	err := cs.db.Where("id = ?", id).First(&City).Error
 	if err != nil {
 		return nil, err
 	}
 	return &City, nil
 }
 
-func (vs *cityService) GetList() ([]model.City, error) {
+func (cs *cityService) GetList() ([]model.City, error) {
 	var result []model.City
-	rows, err := vs.db.Table("cities").Rows()
+	rows, err := cs.db.Table("cities").Order("name asc").Rows()
 	if err != nil{
 		return []model.City{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() { 
-		vs.db.ScanRows(rows, &result)
+		cs.db.ScanRows(rows, &result)
 	}
 	return result, nil 
 }

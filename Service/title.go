@@ -44,7 +44,7 @@ func (ts *titleService) GetByID(id int) (*model.Title, error) {
 
 func (ts *titleService) GetList() ([]model.Title, error) {
 	var result []model.Title
-	rows, err := ts.db.Table("titles").Rows()
+	rows, err := ts.db.Table("titles").Order("name asc").Rows()
 	if err != nil{
 		return []model.Title{}, err
 	}

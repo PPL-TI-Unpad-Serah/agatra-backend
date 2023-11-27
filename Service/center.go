@@ -44,7 +44,7 @@ func (cs *centerService) GetByID(id int) (*model.Center, error) {
 
 func (cs *centerService) GetList() ([]model.Center, error) {
 	var result []model.Center
-	rows, err := cs.db.Table("centers").Rows()
+	rows, err := cs.db.Table("centers").Order("name asc").Rows()
 	if err != nil{
 		return []model.Center{}, err
 	}

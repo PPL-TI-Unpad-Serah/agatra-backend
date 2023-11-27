@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Auth() gin.HandlerFunc {
@@ -124,3 +125,15 @@ func AuthMaintainer(db *gorm.DB) gin.HandlerFunc {
 	})
 }
 
+func HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}

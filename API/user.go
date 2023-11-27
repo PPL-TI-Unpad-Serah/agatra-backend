@@ -22,7 +22,6 @@ type UserAPI interface {
 	GetUserByID(u *gin.Context)
 	GetUserList(u *gin.Context)
 	GetPrivileged(u *gin.Context)
-	SearchName(u *gin.Context)
 }
 
 type userAPI struct {
@@ -35,17 +34,17 @@ func NewUserAPI(userService service.UserService, sessionService service.SessionS
 }
 
 func (ua *userAPI) Login(u *gin.Context) {
-	var user model.User
+	var user model.User_login
 	if err := u.BindJSON(&user); err != nil {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("invalid decode json"))
 		return
 	}
-	if user.Email == "" || user.Password == "" {
+	if user.Username == "" || user.Password == "" {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("login data is empty"))
 		return
 	}
-	dbUser, _ := ua.userService.GetByEmail(user.Email)
-	if dbUser.Email == "" || dbUser.ID == 0 {
+	dbUser, _ := ua.userService.GetByName(user.Username)
+	if dbUser.Name == "" || dbUser.ID == 0 {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("user not found"))
 		return
 	}
@@ -68,7 +67,7 @@ func (ua *userAPI) Login(u *gin.Context) {
 	}
 	session := model.Session{
 		Token:  tokenString,
-		Email:  user.Email,
+		Email:  dbUser.Email,
 		Expiry: expirationTime,
 	}
 	_, err = ua.sessionService.SessionAvailEmail(session.Email)
@@ -100,9 +99,14 @@ func (ua *userAPI) Login(u *gin.Context) {
 	u.Writer.Header().Add("Set-Cookie", cookie.String())
 	u.SetCookie("session_token", tokenString, int(claims.ExpiresAt), "/", "localhost", false, true)
 
+	loginResponse := model.LoginResponse{
+		ApiKey: tokenString,
+		User: dbUser,
+	}
+
 	u.JSON(http.StatusOK, gin.H{
-		"apiKey": tokenString,
 		"message": "login success",
+		"data": loginResponse,
 	})
 }
 
@@ -133,7 +137,7 @@ func (ua *userAPI) Register(u *gin.Context) {
 	}
 	err := ua.userService.Store(&result)
 	if err != nil {
-		u.JSON(http.StatusInternalServerError, model.NewErrorResponse(err.Error()))
+		u.JSON(http.StatusInternalServerError, model.NewErrorResponse("Error Storing Data"))
 		return
 	}
 	u.JSON(http.StatusCreated, model.NewSuccessResponse("register success"))
@@ -236,17 +240,33 @@ func (ua *userAPI) GetUserByID(u *gin.Context) {
 }
 
 func (ua *userAPI) GetUserList(u *gin.Context) {
-	User, err := ua.userService.GetList()
-	if err != nil {
-		u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
-		return
+	name := u.Query("name")
+	if name != ""{
+		User, err := ua.userService.SearchName(name)
+		if err != nil {
+			u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		var result model.UserArrayResponse
+		result.Users = User 
+		result.Message = "Getting All Users From Search Result Success"
+
+		u.JSON(http.StatusOK, result)
+	}else{
+		User, err := ua.userService.GetList()
+		if err != nil {
+			u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		var result model.UserArrayResponse
+		result.Users = User 
+		result.Message = "Getting All Users Success"
+
+		u.JSON(http.StatusOK, result)
 	}
-
-	var result model.UserArrayResponse
-	result.Users = User 
-	result.Message = "Getting All Users Success"
-
-	u.JSON(http.StatusOK, result)
+	
 }
 
 func (ua *userAPI) GetPrivileged(u *gin.Context) {
@@ -263,17 +283,3 @@ func (ua *userAPI) GetPrivileged(u *gin.Context) {
 	u.JSON(http.StatusOK, result)
 }
 
-func (ua *userAPI) SearchName(u *gin.Context) {
-	name := u.Param("name")
-	User, err := ua.userService.SearchName(name)
-	if err != nil {
-		u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	var result model.UserArrayResponse
-	result.Users = User 
-	result.Message = "Getting All Privileged Users Success"
-
-	u.JSON(http.StatusOK, result)
-}

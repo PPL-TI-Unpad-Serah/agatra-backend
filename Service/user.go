@@ -12,6 +12,7 @@ type UserService interface {
 	GetByID(id int) (*model.User, error)
 	GetList() ([]model.User, error)
 	GetByEmail(Email string) (model.User, bool)
+	GetByName(Name string) (model.User, bool)
 	GetPrivileged() ([]model.User, error)
 	SearchName(name string) ([]model.User, error)
 }
@@ -76,6 +77,15 @@ func (us *userService) GetPrivileged() ([]model.User, error) {
 func (us *userService) GetByEmail(email string) (model.User, bool) {
 	var result model.User
 	err := us.db.Where("email = ?", email).First(&result).Error
+	if err != nil {
+		return model.User{}, false
+	}
+	return result, true
+}
+
+func (us *userService) GetByName(name string) (model.User, bool) {
+	var result model.User
+	err := us.db.Where("name = ?", name).First(&result).Error
 	if err != nil {
 		return model.User{}, false
 	}

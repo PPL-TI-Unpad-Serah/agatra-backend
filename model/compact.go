@@ -13,6 +13,7 @@ type Location_compact struct{
 type Version_compact struct{
 	ID		int				`gorm:"primaryKey" json:"id"`
 	Name	string			`gorm:"notNull" json:"name"`
+	TitleID	int				`gorm:"notNull" json:"title_id"`
 	Info	string			`gorm:"notNull" json:"info"`
 }
 

@@ -34,17 +34,17 @@ func NewUserAPI(userService service.UserService, sessionService service.SessionS
 }
 
 func (ua *userAPI) Login(u *gin.Context) {
-	var user model.User
+	var user model.User_login
 	if err := u.BindJSON(&user); err != nil {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("invalid decode json"))
 		return
 	}
-	if user.Email == "" || user.Password == "" {
+	if user.Username == "" || user.Password == "" {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("login data is empty"))
 		return
 	}
-	dbUser, _ := ua.userService.GetByEmail(user.Email)
-	if dbUser.Email == "" || dbUser.ID == 0 {
+	dbUser, _ := ua.userService.GetByName(user.Username)
+	if dbUser.Name == "" || dbUser.ID == 0 {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("user not found"))
 		return
 	}
@@ -67,7 +67,7 @@ func (ua *userAPI) Login(u *gin.Context) {
 	}
 	session := model.Session{
 		Token:  tokenString,
-		Email:  user.Email,
+		Email:  dbUser.Email,
 		Expiry: expirationTime,
 	}
 	_, err = ua.sessionService.SessionAvailEmail(session.Email)
@@ -132,7 +132,7 @@ func (ua *userAPI) Register(u *gin.Context) {
 	}
 	err := ua.userService.Store(&result)
 	if err != nil {
-		u.JSON(http.StatusInternalServerError, model.NewErrorResponse(err.Error()))
+		u.JSON(http.StatusInternalServerError, model.NewErrorResponse("Error Storing Data"))
 		return
 	}
 	u.JSON(http.StatusCreated, model.NewSuccessResponse("register success"))

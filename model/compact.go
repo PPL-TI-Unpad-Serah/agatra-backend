@@ -25,6 +25,11 @@ type User_compact struct {
 	Role		string			`gorm:"notNull" json:"role"`
 }
 
+type User_login struct{
+	Username 	string			`gorm:"notNull" json:"username"`
+	Password	string			`gorm:"notNull" json:"password"`
+}
+
 func LocationToCompact(lf Location) Location_compact{
 	compact := Location_compact{
 		ID: lf.ID,
@@ -61,6 +66,8 @@ func UserToCompact(uf User) User_compact{
 		Role:	uf.Role,
 	}
 }
+
+
 
 // func MassCompactUser(uf []User) []User_compact{
 // 	var result []model.User

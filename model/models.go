@@ -69,7 +69,6 @@ type Session struct {
 	Expiry time.Time 			`json:"expiry"`
 }
 
-
 type Versions struct {
 	ID 			int				`gorm:"primaryKey" json:"id"`
 	Title		Title_compact	`gorm:"notNull;foreignKey:id" json:"title"`

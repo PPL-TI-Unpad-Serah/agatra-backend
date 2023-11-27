@@ -99,9 +99,14 @@ func (ua *userAPI) Login(u *gin.Context) {
 	u.Writer.Header().Add("Set-Cookie", cookie.String())
 	u.SetCookie("session_token", tokenString, int(claims.ExpiresAt), "/", "localhost", false, true)
 
+	loginResponse := model.LoginResponse{
+		ApiKey: tokenString,
+		User: dbUser,
+	}
+
 	u.JSON(http.StatusOK, gin.H{
-		"apiKey": tokenString,
 		"message": "login success",
+		"data": loginResponse,
 	})
 }
 

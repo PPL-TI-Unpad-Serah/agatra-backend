@@ -94,8 +94,8 @@ type SessionArrayResponse struct {
 }
 
 type LoginResponse struct {
-	ApiKey string
-	User   User
+	ApiKey string    	`json:"apiKey"`
+	User   User		    `json:"user"`
 }
 
 type RegisterInput struct {

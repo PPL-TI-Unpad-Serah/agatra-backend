@@ -30,6 +30,8 @@ type User_login struct{
 	Password	string			`gorm:"notNull" json:"password"`
 }
 
+
+
 func LocationToCompact(lf Location) Location_compact{
 	compact := Location_compact{
 		ID: lf.ID,

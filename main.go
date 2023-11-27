@@ -216,7 +216,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		alpha.POST("/login", apiHandler.UserAPIHandler.Login)
 		alpha.POST("/register", apiHandler.UserAPIHandler.Register)
 		alpha.Use(middleware.Auth())
-		alpha.POST("/profile", apiHandler.UserAPIHandler.Profile)
+		alpha.GET("/profile", apiHandler.UserAPIHandler.Profile)
 		alpha.POST("/logout", apiHandler.UserAPIHandler.Logout)
 	}
 

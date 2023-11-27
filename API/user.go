@@ -1,16 +1,17 @@
 package API
 
 import (
+	service "agatra/Service"
+	"agatra/middleware"
 	"agatra/model"
-	service "agatra/Service" 
 	"net/http"
 	"strconv"
 	"time"
-	"agatra/middleware"
+
 	// "errors"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 type UserAPI interface {
@@ -294,29 +295,9 @@ func (ua *userAPI) GetPrivileged(u *gin.Context) {
 }
 
 func (ua *userAPI) Profile(u *gin.Context) {
-	data, err := u.Cookie("session_token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			if u.GetHeader("Content-Type") == "application/json" {
-				u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			} else {
-				u.Redirect(http.StatusSeeOther, "/user/login")
-				u.Abort()
-			}
-			return
-		}
-		u.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	claims := &model.Claims{}
-	tkn, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
-		return model.JwtKey, nil
-	})
-	if err != nil || !tkn.Valid {
-		u.JSON(400, model.ErrorResponse{Error: "ga valid bang"})
-		return
-	}
-	compare, boo := ua.userService.GetByEmail(claims.Email)
+	email := u.Keys["email"].(string)
+
+	compare, boo := ua.userService.GetByEmail(email)
 	if !boo {
 		u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Trouble finding user"})
 	}

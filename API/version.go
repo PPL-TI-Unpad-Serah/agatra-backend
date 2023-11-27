@@ -95,7 +95,9 @@ func (va *versionAPI) GetVersionByID(v *gin.Context) {
 }
 
 func (va *versionAPI) GetVersionList(v *gin.Context) {
-	Version, err := va.versionService.GetList()
+	titleID, err := strconv.Atoi(v.Query("game_title"))
+
+	Version, err := va.versionService.GetList(titleID)
 	if err != nil {
 		v.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return

@@ -3,39 +3,34 @@ package middleware
 import (
 	model "agatra/model"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
-	"gorm.io/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
+// Authorization: Bearer [JWT]
 func Auth() gin.HandlerFunc {
 	return gin.HandlerFunc(func(ctx *gin.Context) {
-		data, err := ctx.Cookie("session_token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				if ctx.GetHeader("Content-Type") == "application/json" {
-					ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-				} else {
-					ctx.Redirect(http.StatusSeeOther, "/user/login")
-					ctx.Abort()
-				}
-				return
-			}
-			ctx.AbortWithStatus(http.StatusBadRequest)
+		res := strings.Split(ctx.GetHeader("Authorization"), " ")
+
+		if len(res) != 2 || res[0] != "Bearer" {
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
 		claims := &model.Claims{}
-
-		tkn, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+		tkn, err := jwt.ParseWithClaims(res[1], claims, func(token *jwt.Token) (interface{}, error) {
             return model.JwtKey, nil
         })
+
         if err != nil || !tkn.Valid {
-            ctx.JSON(400, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
+
 		ctx.Set("email", claims.Email)
 		ctx.Next()
 	})
@@ -43,28 +38,20 @@ func Auth() gin.HandlerFunc {
 
 func AuthAdmin(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(func(ctx *gin.Context) {
-		data, err := ctx.Cookie("session_token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				if ctx.GetHeader("Content-Type") == "application/json" {
-					ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-				} else {
-					ctx.Redirect(http.StatusSeeOther, "/user/login")
-					ctx.Abort()
-				}
-				return
-			}
-			ctx.AbortWithStatus(http.StatusBadRequest)
+		res := strings.Split(ctx.GetHeader("Authorization"), " ")
+
+		if len(res) != 2 || res[0] != "Bearer" {
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
 		claims := &model.Claims{}
-
-		tkn, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+		tkn, err := jwt.ParseWithClaims(res[1], claims, func(token *jwt.Token) (interface{}, error) {
             return model.JwtKey, nil
         })
+
         if err != nil || !tkn.Valid {
-            ctx.JSON(400, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
 		
@@ -85,31 +72,23 @@ func AuthAdmin(db *gorm.DB) gin.HandlerFunc {
 
 func AuthMaintainer(db *gorm.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(func(ctx *gin.Context) {
-		data, err := ctx.Cookie("session_token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				if ctx.GetHeader("Content-Type") == "application/json" {
-					ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-				} else {
-					ctx.Redirect(http.StatusSeeOther, "/user/login")
-					ctx.Abort()
-				}
-				return
-			}
-			ctx.AbortWithStatus(http.StatusBadRequest)
+		res := strings.Split(ctx.GetHeader("Authorization"), " ")
+
+		if len(res) != 2 || res[0] != "Bearer" {
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
 		claims := &model.Claims{}
-
-		tkn, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+		tkn, err := jwt.ParseWithClaims(res[1], claims, func(token *jwt.Token) (interface{}, error) {
             return model.JwtKey, nil
         })
+
         if err != nil || !tkn.Valid {
-            ctx.JSON(400, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
-		
+
 		var compare model.User
 		err = db.Where("email = ?", claims.Email).First(&compare).Error
 		if err != nil {

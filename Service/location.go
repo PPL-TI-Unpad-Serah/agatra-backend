@@ -48,7 +48,7 @@ func (ls *locationService) GetByID(id int) (*model.Location, error) {
 
 func (ls *locationService) GetList() ([]model.Location, error) {
 	var result []model.Location
-	rows, err := ls.db.Table("locations").Rows()
+	rows, err := ls.db.Preload("centers").Preload("machines").Preload("cities").Table("locations").Rows()
 	if err != nil{
 		return []model.Location{}, err
 	}
@@ -75,7 +75,7 @@ func (ls *locationService) GetListNearby(lat float64, long float64) ([]model.Loc
 }
 func (ls *locationService) SearchName(name string) ([]model.Location, error){
 	var result []model.Location
-	rows, err := ls.db.Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
+	rows, err := ls.db.Preload("centers").Preload("machines").Preload("cities").Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
 	if err != nil{
 		return []model.Location{}, err
 	}

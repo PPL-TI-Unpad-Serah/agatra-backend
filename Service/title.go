@@ -35,7 +35,7 @@ func (ts *titleService) Delete(id int) error {
 
 func (ts *titleService) GetByID(id int) (*model.Title, error) {
 	var Title model.Title
-	err := ts.db.Where("id = ?", id).First(&Title).Error
+	err := ts.db.Preload("versions").Where("id = ?", id).First(&Title).Error
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +44,16 @@ func (ts *titleService) GetByID(id int) (*model.Title, error) {
 
 func (ts *titleService) GetList() ([]model.Title, error) {
 	var result []model.Title
-	rows, err := ts.db.Table("titles").Order("name asc").Rows()
+	rows, err := ts.db.Preload("versions").Table("titles").Order("name asc").Rows()
 	if err != nil{
 		return []model.Title{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() { 
-		ts.db.ScanRows(rows, &result)
+		var title model.Title
+		ts.db.ScanRows(rows, &title)
+		result = append(result, title)
 	}
 	return result, nil 
 }

@@ -23,7 +23,7 @@ type Machine struct {
 	Count		int				`gorm:"notNull" json:"machine_count"`
 	Price		int				`json:"price"`
 	LocationID	int				`gorm:"notNull" json:"location_id"`
-	Location	Location		`gorm:"notNull;foreignKey:LocationID" json:"center"`
+	Location	Location		`gorm:"notNull;foreignKey:LocationID" json:"location"`
 	Notes		string			`json:"notes"`
 }
 
@@ -51,7 +51,7 @@ type Version struct {
 type Title struct {
 	ID 			int					`gorm:"primaryKey" json:"id"`
 	Name		string				`gorm:"notNull" json:"name"`
-	Version		[]Version			`gorm:"notNull; foreignKey:TitleID" json:"version"`
+	Version		[]Version			`gorm:"notNull; foreignKey:TitleID" json:"versions"`
 }
 
 type User struct {

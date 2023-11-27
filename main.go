@@ -1,21 +1,22 @@
 package main
 
 import (
-	api "agatra/API" 
+	api "agatra/API"
+	service "agatra/Service"
 	"agatra/db"
-	"agatra/model"
-	service "agatra/Service" 
 	"agatra/middleware"
+	"agatra/model"
 	"log"
 	"os"
 
+	_ "embed"
 	"fmt"
 	"sync"
-	_ "embed"
+
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
 )
 
 type APIHandler struct {
@@ -113,46 +114,46 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			users := admin.Group("/users")
 
 			{
-				users.POST("/add", apiHandler.UserAPIHandler.AddUser)
-				users.PUT("/update/:id", apiHandler.UserAPIHandler.UpdateUser)
-				users.DELETE("/delete/:id", apiHandler.UserAPIHandler.DeleteUser)
+				users.POST("", apiHandler.UserAPIHandler.AddUser)
+				users.PUT("/:id", apiHandler.UserAPIHandler.UpdateUser)
+				users.DELETE("/:id", apiHandler.UserAPIHandler.DeleteUser)
 				users.GET("/privileged", apiHandler.UserAPIHandler.GetPrivileged)
-				users.GET("/search", apiHandler.UserAPIHandler.SearchName)
+				users.GET("", apiHandler.UserAPIHandler.SearchName)
 			}
 
 			city := admin.Group("/cities")
 			{
-				city.POST("/add", apiHandler.CityAPIHandler.AddCity)
-				city.PUT("/update/:id", apiHandler.CityAPIHandler.UpdateCity)
-				city.DELETE("/delete/:id", apiHandler.CityAPIHandler.DeleteCity)
+				city.POST("", apiHandler.CityAPIHandler.AddCity)
+				city.PUT("/:id", apiHandler.CityAPIHandler.UpdateCity)
+				city.DELETE("/:id", apiHandler.CityAPIHandler.DeleteCity)
 			}
       
 			center := admin.Group("/arcade_centers")
 			{
-				center.POST("/add", apiHandler.CenterAPIHandler.AddCenter)
-				center.PUT("/update/:id", apiHandler.CenterAPIHandler.UpdateCenter)
-				center.DELETE("/delete/:id", apiHandler.CenterAPIHandler.DeleteCenter)
+				center.POST("", apiHandler.CenterAPIHandler.AddCenter)
+				center.PUT("/:id", apiHandler.CenterAPIHandler.UpdateCenter)
+				center.DELETE("/:id", apiHandler.CenterAPIHandler.DeleteCenter)
 			}
 
 			location := admin.Group("/arcade_locations")
 			{
-				location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
-				location.PUT("/update/:id", apiHandler.LocationAPIHandler.UpdateLocation)
-				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
+				location.POST("", apiHandler.LocationAPIHandler.AddLocation)
+				location.PUT("/:id", apiHandler.LocationAPIHandler.UpdateLocation)
+				location.DELETE("/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 
 			version := admin.Group("/game_title_versions")
 			{
-				version.POST("/add", apiHandler.VersionAPIHandler.AddVersion)
-				version.PUT("/update/:id", apiHandler.VersionAPIHandler.UpdateVersion)
-				version.DELETE("/delete/:id", apiHandler.VersionAPIHandler.DeleteVersion)
+				version.POST("", apiHandler.VersionAPIHandler.AddVersion)
+				version.PUT("/:id", apiHandler.VersionAPIHandler.UpdateVersion)
+				version.DELETE("/:id", apiHandler.VersionAPIHandler.DeleteVersion)
 			}
 
 			title := admin.Group("/game_titles")
 			{
-				title.POST("/add", apiHandler.TitleAPIHandler.AddTitle)
-				title.PUT("/update/:id", apiHandler.TitleAPIHandler.UpdateTitle)
-				title.DELETE("/delete/:id", apiHandler.TitleAPIHandler.DeleteTitle)
+				title.POST("", apiHandler.TitleAPIHandler.AddTitle)
+				title.PUT("/:id", apiHandler.TitleAPIHandler.UpdateTitle)
+				title.DELETE("/:id", apiHandler.TitleAPIHandler.DeleteTitle)
 			}
 		}
 
@@ -160,56 +161,56 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		{
 			machine := maintainer.Group("/arcade_machines")
 			{
-				machine.POST("/add", apiHandler.MachineAPIHandler.AddMachine)
-				machine.PUT("/update/:id", apiHandler.MachineAPIHandler.UpdateMachine)
-				machine.DELETE("/delete/:id", apiHandler.MachineAPIHandler.DeleteMachine)
+				machine.POST("", apiHandler.MachineAPIHandler.AddMachine)
+				machine.PUT("/:id", apiHandler.MachineAPIHandler.UpdateMachine)
+				machine.DELETE("/:id", apiHandler.MachineAPIHandler.DeleteMachine)
 			}
 			
 			location := maintainer.Group("/arcade_locations")
 			{
-				location.POST("/add", apiHandler.LocationAPIHandler.AddLocation)
-				location.PUT("/update/:id", apiHandler.LocationAPIHandler.UpdateLocation)
-				location.DELETE("/delete/:id", apiHandler.LocationAPIHandler.DeleteLocation)
+				location.POST("", apiHandler.LocationAPIHandler.AddLocation)
+				location.PUT("/:id", apiHandler.LocationAPIHandler.UpdateLocation)
+				location.DELETE("/:id", apiHandler.LocationAPIHandler.DeleteLocation)
 			}
 		}
 
 		city := alpha.Group("/cities")
 		{
-			city.GET("/get/:id", apiHandler.CityAPIHandler.GetCityByID)
-			city.GET("/list", apiHandler.CityAPIHandler.GetCityList)
+			city.GET("/:id", apiHandler.CityAPIHandler.GetCityByID)
+			city.GET("", apiHandler.CityAPIHandler.GetCityList)
 		}
 
 		center := alpha.Group("/arcade_centers")
 		{
-			center.GET("/get/:id", apiHandler.CenterAPIHandler.GetCenterByID)
-			center.GET("/list", apiHandler.CenterAPIHandler.GetCenterList)
+			center.GET("/:id", apiHandler.CenterAPIHandler.GetCenterByID)
+			center.GET("", apiHandler.CenterAPIHandler.GetCenterList)
 		}
 
 
 		location := alpha.Group("/arcade_locations")
 		{
-			location.GET("/get/:id", apiHandler.LocationAPIHandler.GetLocationByID)
-			location.GET("/list", apiHandler.LocationAPIHandler.GetLocationList)
+			location.GET("/:id", apiHandler.LocationAPIHandler.GetLocationByID)
+			location.GET("", apiHandler.LocationAPIHandler.GetLocationList)
 			location.GET("/nearby/:lat/:long", apiHandler.LocationAPIHandler.GetLocationNearby)
 			location.GET("/search", apiHandler.LocationAPIHandler.SearchLocation)
 		}
 
 		machine := alpha.Group("/arcade_machines")
 		{
-			machine.GET("/get/:id", apiHandler.MachineAPIHandler.GetMachineByID)
-			machine.GET("/list", apiHandler.MachineAPIHandler.GetMachineList)
+			machine.GET("/:id", apiHandler.MachineAPIHandler.GetMachineByID)
+			machine.GET("", apiHandler.MachineAPIHandler.GetMachineList)
 		}
 
 		version := alpha.Group("/game_title_versions")
 		{
-			version.GET("/get/:id", apiHandler.VersionAPIHandler.GetVersionByID)
-			version.GET("/list", apiHandler.VersionAPIHandler.GetVersionList)
+			version.GET("/:id", apiHandler.VersionAPIHandler.GetVersionByID)
+			version.GET("", apiHandler.VersionAPIHandler.GetVersionList)
 		}
 
 		title := alpha.Group("/game_titles")
 		{
-			title.GET("/get/:id", apiHandler.TitleAPIHandler.GetTitleByID)
-			title.GET("/list", apiHandler.TitleAPIHandler.GetTitleList)
+			title.GET("/:id", apiHandler.TitleAPIHandler.GetTitleByID)
+			title.GET("", apiHandler.TitleAPIHandler.GetTitleList)
 		}
 		alpha.POST("/login", apiHandler.UserAPIHandler.Login)
 		alpha.POST("/register", apiHandler.UserAPIHandler.Register)

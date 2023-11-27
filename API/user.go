@@ -22,6 +22,7 @@ type UserAPI interface {
 	GetUserByID(u *gin.Context)
 	GetUserList(u *gin.Context)
 	GetPrivileged(u *gin.Context)
+	Profile(u *gin.Context)
 }
 
 type userAPI struct {
@@ -279,6 +280,41 @@ func (ua *userAPI) GetPrivileged(u *gin.Context) {
 	var result model.UserArrayResponse
 	result.Users = User 
 	result.Message = "Getting All Privileged Users Success"
+
+	u.JSON(http.StatusOK, result)
+}
+
+func (ua *userAPI) Profile(u *gin.Context) {
+	data, err := u.Cookie("session_token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			if u.GetHeader("Content-Type") == "application/json" {
+				u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			} else {
+				u.Redirect(http.StatusSeeOther, "/user/login")
+				u.Abort()
+			}
+			return
+		}
+		u.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	claims := &model.Claims{}
+	tkn, err := jwt.ParseWithClaims(data, claims, func(token *jwt.Token) (interface{}, error) {
+		return model.JwtKey, nil
+	})
+	if err != nil || !tkn.Valid {
+		u.JSON(400, model.ErrorResponse{Error: "ga valid bang"})
+		return
+	}
+	compare, boo := ua.userService.GetByEmail(claims.Email)
+	if !boo {
+		u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Trouble finding user"})
+	}
+
+	var result model.UserResponse
+	result.User = compare
+	result.Message = "Get User Profile Success"
 
 	u.JSON(http.StatusOK, result)
 }

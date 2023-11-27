@@ -21,37 +21,37 @@ func NewCenterService(db *gorm.DB) *centerService {
 	return &centerService{db}
 }
 
-func (vs *centerService) Store(center *model.Center) error {
-	return vs.db.Create(center).Error
+func (cs *centerService) Store(center *model.Center) error {
+	return cs.db.Create(center).Error
 }
 
-func (vs *centerService) Update(id int, center model.Center) error {
-	return vs.db.Where(id).Updates(center).Error
+func (cs *centerService) Update(id int, center model.Center) error {
+	return cs.db.Where(id).Updates(center).Error
 }
 
-func (vs *centerService) Delete(id int) error {	
-	return vs.db.Where(id).Delete(&model.Center{}).Error 
+func (cs *centerService) Delete(id int) error {	
+	return cs.db.Where(id).Delete(&model.Center{}).Error 
 }
 
-func (vs *centerService) GetByID(id int) (*model.Center, error) {
+func (cs *centerService) GetByID(id int) (*model.Center, error) {
 	var Center model.Center
-	err := vs.db.Where("id = ?", id).First(&Center).Error
+	err := cs.db.Where("id = ?", id).First(&Center).Error
 	if err != nil {
 		return nil, err
 	}
 	return &Center, nil
 }
 
-func (vs *centerService) GetList() ([]model.Center, error) {
+func (cs *centerService) GetList() ([]model.Center, error) {
 	var result []model.Center
-	rows, err := vs.db.Table("centers").Rows()
+	rows, err := cs.db.Table("centers").Rows()
 	if err != nil{
 		return []model.Center{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() { 
-		vs.db.ScanRows(rows, &result)
+		cs.db.ScanRows(rows, &result)
 	}
 	return result, nil 
 }

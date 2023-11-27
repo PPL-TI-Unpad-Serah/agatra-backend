@@ -35,7 +35,7 @@ func (vs *versionService) Delete(id int) error {
 
 func (vs *versionService) GetByID(id int) (*model.Version, error) {
 	var Version model.Version
-	err := vs.db.Where("id = ?", id).First(&Version).Error
+	err := vs.db.Preload("titles").Where("id = ?", id).First(&Version).Error
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (vs *versionService) GetByID(id int) (*model.Version, error) {
 
 func (vs *versionService) GetList() ([]model.Version, error) {
 	var result []model.Version
-	rows, err := vs.db.Table("versions").Rows()
+	rows, err := vs.db.Preload("titles").Table("versions").Rows()
 	if err != nil{
 		return []model.Version{}, err
 	}

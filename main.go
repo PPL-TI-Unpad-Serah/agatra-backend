@@ -118,7 +118,8 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				users.PUT("/:id", apiHandler.UserAPIHandler.UpdateUser)
 				users.DELETE("/:id", apiHandler.UserAPIHandler.DeleteUser)
 				users.GET("/privileged", apiHandler.UserAPIHandler.GetPrivileged)
-				users.GET("", apiHandler.UserAPIHandler.SearchName)
+				users.GET("", apiHandler.UserAPIHandler.GetUserList)
+				users.GET("/:id", apiHandler.UserAPIHandler.GetUserByID)
 			}
 
 			city := admin.Group("/cities")
@@ -191,7 +192,7 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 		{
 			location.GET("/:id", apiHandler.LocationAPIHandler.GetLocationByID)
 			location.GET("", apiHandler.LocationAPIHandler.GetLocationList)
-			location.GET("/nearby/:lat/:long", apiHandler.LocationAPIHandler.GetLocationNearby)
+			location.GET("/nearby", apiHandler.LocationAPIHandler.GetLocationNearby)
 			location.GET("/search", apiHandler.LocationAPIHandler.SearchLocation)
 		}
 

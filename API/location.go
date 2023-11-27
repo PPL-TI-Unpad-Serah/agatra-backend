@@ -111,12 +111,12 @@ func (ta *locationAPI) GetLocationList(l *gin.Context) {
 }
 
 func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
-	Lat, err := strconv.ParseFloat(l.Param("lat"), 64)
+	Lat, err := strconv.ParseFloat(l.Query("lat"), 64)
 	if err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Lat"})
 		return
 	}
-	Long, err := strconv.ParseFloat(l.Param("long"), 64)
+	Long, err := strconv.ParseFloat(l.Query("long"), 64)
 	if err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Long"})
 		return
@@ -135,7 +135,7 @@ func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
 }
 
 func (la *locationAPI) SearchLocation(l *gin.Context) {
-	name := l.Param("name")
+	name := l.Query("name")
 	location, err := la.locationService.SearchName(name)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})

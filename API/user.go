@@ -276,10 +276,14 @@ func (ua *userAPI) Profile(u *gin.Context) {
 		u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Trouble finding user"})
 	}
 
-	var result model.UserResponse
-	result.User = compare
-	result.Message = "Get User Profile Success"
-
-	u.JSON(http.StatusOK, result)
+	u.JSON(http.StatusOK, gin.H{
+		"message": "Get User Profile Success",
+		"data": gin.H{
+			"id":compare.ID,
+			"username":compare.Name,
+			"email":compare.Email,
+			"role":compare.Role,
+		},
+	})
 }
 

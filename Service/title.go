@@ -44,16 +44,9 @@ func (ts *titleService) GetByID(id int) (*model.Title, error) {
 
 func (ts *titleService) GetList() ([]model.Title, error) {
 	var result []model.Title
-	rows, err := ts.db.Preload("versions").Table("titles").Order("name asc").Rows()
+	err := ts.db.Preload("Version").Order("name asc").Find(&result).Error
 	if err != nil{
 		return []model.Title{}, err
-	}
-	defer rows.Close()
-
-	for rows.Next() { 
-		var title model.Title
-		ts.db.ScanRows(rows, &title)
-		result = append(result, title)
 	}
 	return result, nil 
 }

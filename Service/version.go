@@ -10,7 +10,7 @@ type VersionService interface {
 	Update(id int, version model.Version) error
 	Delete(id int) error
 	GetByID(id int) (*model.Version, error)
-	GetList() ([]model.Version, error)
+	GetList(titleID int) ([]model.Version, error)
 }
 
 type versionService struct {
@@ -42,16 +42,13 @@ func (vs *versionService) GetByID(id int) (*model.Version, error) {
 	return &Version, nil
 }
 
-func (vs *versionService) GetList() ([]model.Version, error) {
+func (vs *versionService) GetList(titleID int) ([]model.Version, error) {
 	var result []model.Version
-	rows, err := vs.db.Preload("titles").Table("versions").Rows()
+	err := vs.db.Preload("Title").Order("name asc").Where("title_id = ?", titleID).Find(&result).Error
+
 	if err != nil{
 		return []model.Version{}, err
 	}
-	defer rows.Close()
 
-	for rows.Next() { 
-		vs.db.ScanRows(rows, &result)
-	}
 	return result, nil 
 }

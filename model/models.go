@@ -43,7 +43,7 @@ type Location struct {
 type Version struct {
 	ID 			int				`gorm:"primaryKey" json:"id"`
 	TitleID		int				`gorm:"notNull" json:"title_id"`
-	Title		Title			`gorm:"notNull;foreignKey:TitleID" json:"title"`
+	Title		Title_compact	`gorm:"notNull;foreignKey:TitleID" json:"title"`
 	Name		string			`gorm:"notNull" json:"name"`
 	Info		string			`gorm:"notNull" json:"info"`
 }
@@ -51,7 +51,7 @@ type Version struct {
 type Title struct {
 	ID 			int					`gorm:"primaryKey" json:"id"`
 	Name		string				`gorm:"notNull" json:"name"`
-	Version		[]Version			`gorm:"notNull; foreignKey:TitleID" json:"versions"`
+	Version		[]Version_compact	`gorm:"notNull; foreignKey:TitleID" json:"versions"`
 }
 
 type User struct {

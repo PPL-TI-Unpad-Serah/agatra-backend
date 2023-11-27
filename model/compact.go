@@ -1,5 +1,9 @@
 package model
 
+type Tabler interface {
+	TableName() string
+}
+
 type Location_compact struct{
 	ID		int				`gorm:"primaryKey" json:"location_id"`
 	Name	string			`gorm:"notNull" json:"name"`
@@ -7,14 +11,22 @@ type Location_compact struct{
 }
 
 type Version_compact struct{
-	ID		int				`gorm:"primaryKey" json:"version_id"`
+	ID		int				`gorm:"primaryKey" json:"id"`
 	Name	string			`gorm:"notNull" json:"name"`
 	Info	string			`gorm:"notNull" json:"info"`
 }
 
+func (Version_compact) TableName() string {
+	return "versions"
+}
+
 type Title_compact struct{
-	ID		int				`gorm:"primaryKey" json:"title_id"`
+	ID		int				`gorm:"primaryKey" json:"id"`
 	Name	string			`gorm:"notNull" json:"name"`
+}
+
+func (Title_compact) TableName() string {
+	return "titles"
 }
 
 type User_compact struct {

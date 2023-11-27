@@ -94,14 +94,6 @@ func (ua *userAPI) Login(u *gin.Context) {
 		return
 	}
 
-	cookie := http.Cookie{
-		Name:    "session_token",
-		Value:   tokenString,
-		Expires: time.Unix(claims.ExpiresAt, 0),
-	}
-	u.Writer.Header().Add("Set-Cookie", cookie.String())
-	u.SetCookie("session_token", tokenString, int(claims.ExpiresAt), "/", "localhost", false, true)
-
 	u.JSON(http.StatusOK, gin.H{
 		"message": "login success",
 		"data": gin.H{
@@ -155,24 +147,6 @@ func (ua *userAPI) Register(u *gin.Context) {
 }
 
 func (ua *userAPI) Logout(u *gin.Context) {
-	data, _ := u.Cookie("session_token")
-	err := ua.sessionService.DeleteSession(data)
-	if err != nil {
-		u.JSON(http.StatusInternalServerError, model.NewErrorResponse(err.Error()))
-		return
-	}
-	claims := &model.Claims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: -1,
-		},
-	}
-	cookie := http.Cookie{
-		Name:    "session_token",
-		Value:   data,
-		Expires: time.Unix(claims.ExpiresAt, -1),
-	}
-	u.Writer.Header().Add("Set-Cookie", cookie.String())
-	u.SetCookie("session_token", data, int(claims.ExpiresAt), "/", "localhost", false, true)
 	u.JSON(http.StatusOK, model.NewSuccessResponse("logout success"))
 }
 

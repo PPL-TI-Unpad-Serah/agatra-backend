@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"agatra/middleware"
 	// "errors"
 
 	"github.com/golang-jwt/jwt"
@@ -49,7 +50,7 @@ func (ua *userAPI) Login(u *gin.Context) {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("user not found"))
 		return
 	}
-	if user.Password != dbUser.Password {
+	if !middleware.CheckPasswordHash(user.Password, dbUser.Password) {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("wrong email or password"))
 		return
 	}
@@ -133,13 +134,18 @@ func (ua *userAPI) Register(u *gin.Context) {
 		return
 	}
 
+	hashedPw, err := middleware.HashPassword(user.Password)
+	if err != nil {
+		u.JSON(http.StatusInternalServerError, model.NewErrorResponse("Skill Issue at Hashing"))
+	}
+
 	var result model.User = model.User{
 		Name:  user.Username,
 		Email: user.Email,
-		Password: user.Password,
+		Password: hashedPw,
 		Role: "member",
 	}
-	err := ua.userService.Store(&result)
+	err = ua.userService.Store(&result)
 	if err != nil {
 		u.JSON(http.StatusInternalServerError, model.NewErrorResponse("Error Storing Data"))
 		return

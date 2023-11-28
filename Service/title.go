@@ -35,7 +35,7 @@ func (ts *titleService) Delete(id int) error {
 
 func (ts *titleService) GetByID(id int) (*model.Title, error) {
 	var Title model.Title
-	err := ts.db.Preload("versions").Where("id = ?", id).First(&Title).Error
+	err := ts.db.Preload("Version").Where("id = ?", id).First(&Title).Error
 	if err != nil {
 		return nil, err
 	}

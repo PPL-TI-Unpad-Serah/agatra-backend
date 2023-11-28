@@ -16,7 +16,6 @@ type LocationAPI interface {
 	GetLocationByID(l *gin.Context)
 	GetLocationList(l *gin.Context)
 	GetLocationNearby(l *gin.Context)
-	SearchLocation(l *gin.Context)
 }
 
 type locationAPI struct {
@@ -27,14 +26,14 @@ func NewLocationAPI(locationService service.LocationService) *locationAPI{
 	return &locationAPI{locationService}
 }
 
-func (ta *locationAPI) AddLocation(l *gin.Context) {
+func (la *locationAPI) AddLocation(l *gin.Context) {
 	var newLocation model.Location
 	if err := l.ShouldBindJSON(&newLocation); err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	err := ta.locationService.Store(&newLocation)
+	err := la.locationService.Store(&newLocation)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
@@ -43,7 +42,7 @@ func (ta *locationAPI) AddLocation(l *gin.Context) {
 	l.JSON(http.StatusOK, model.SuccessResponse{Message: "add Location success"})
 }
 
-func (ta *locationAPI) UpdateLocation(l *gin.Context) {
+func (la *locationAPI) UpdateLocation(l *gin.Context) {
 	var newLocation model.Location
 	if err := l.ShouldBindJSON(&newLocation); err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
@@ -54,7 +53,7 @@ func (ta *locationAPI) UpdateLocation(l *gin.Context) {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid Location ID"})
 		return
 	}
-	err = ta.locationService.Update(LocationID, newLocation)
+	err = la.locationService.Update(LocationID, newLocation)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
@@ -62,13 +61,13 @@ func (ta *locationAPI) UpdateLocation(l *gin.Context) {
 	l.JSON(http.StatusOK, model.SuccessResponse{Message: "Location update success"})
 }
 
-func (ta *locationAPI) DeleteLocation(l *gin.Context) {
+func (la *locationAPI) DeleteLocation(l *gin.Context) {
 	LocationID, err := strconv.Atoi(l.Param("id"))
 	if err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid Location ID"})
 		return
 	}
-	err = ta.locationService.Delete(LocationID)
+	err = la.locationService.Delete(LocationID)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
@@ -76,14 +75,14 @@ func (ta *locationAPI) DeleteLocation(l *gin.Context) {
 	l.JSON(http.StatusOK, model.SuccessResponse{Message: "Location delete success"})
 }
 
-func (ta *locationAPI) GetLocationByID(l *gin.Context) {
+func (la *locationAPI) GetLocationByID(l *gin.Context) {
 	LocationID, err := strconv.Atoi(l.Param("id"))
 	if err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Location ID"})
 		return
 	}
 
-	Location, err := ta.locationService.GetByID(LocationID)
+	Location, err := la.locationService.GetByID(LocationID)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
@@ -96,21 +95,37 @@ func (ta *locationAPI) GetLocationByID(l *gin.Context) {
 	l.JSON(http.StatusOK, result)
 }
 
-func (ta *locationAPI) GetLocationList(l *gin.Context) {
-	Location, err := ta.locationService.GetList()
-	if err != nil {
-		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
-		return
+func (la *locationAPI) GetLocationList(l *gin.Context) {
+	name := l.Query("name")
+	if name != ""{
+		location, err := la.locationService.SearchName(name)
+		if err != nil {
+			l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		var result model.LocationArrayResponse
+		result.Locations = location 
+		result.Message = "Getting All Privileged locations Success"
+
+		l.JSON(http.StatusOK, result)
+	}else{
+		Location, err := la.locationService.GetList()
+		if err != nil {
+			l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		var result model.LocationArrayResponse
+		result.Locations = Location 
+		result.Message = "Getting All Locations Success"
+
+		l.JSON(http.StatusOK, result)
 	}
-
-	var result model.LocationArrayResponse
-	result.Locations = Location 
-	result.Message = "Getting All Locations Success"
-
-	l.JSON(http.StatusOK, result)
+	
 }
 
-func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
+func (la *locationAPI) GetLocationNearby(l *gin.Context) {
 	Lat, err := strconv.ParseFloat(l.Query("lat"), 64)
 	if err != nil {
 		l.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "Invalid Lat"})
@@ -122,7 +137,7 @@ func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
 		return
 	}
 
-	Location, err := ta.locationService.GetListNearby(Lat, Long)
+	Location, err := la.locationService.GetListNearby(Lat, Long)
 	if err != nil {
 		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 		return
@@ -131,20 +146,5 @@ func (ta *locationAPI) GetLocationNearby(l *gin.Context) {
 	result.Locations = Location
 	result.Message = "Location sorted by distance"
 	
-	l.JSON(http.StatusOK, result)
-}
-
-func (la *locationAPI) SearchLocation(l *gin.Context) {
-	name := l.Query("name")
-	location, err := la.locationService.SearchName(name)
-	if err != nil {
-		l.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
-		return
-	}
-
-	var result model.LocationArrayResponse
-	result.Locations = location 
-	result.Message = "Getting All Privileged locations Success"
-
 	l.JSON(http.StatusOK, result)
 }

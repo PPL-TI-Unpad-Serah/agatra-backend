@@ -5,6 +5,7 @@ import (
 	// "errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type LocationService interface {
@@ -39,24 +40,20 @@ func (ls *locationService) Delete(id int) error {
 
 func (ls *locationService) GetByID(id int) (*model.Location, error) {
 	var Location model.Location
-	err := ls.db.Where("id = ?", id).First(&Location).Error
+	err := ls.db.Where("id = ?", id).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").First(&Location).Error
 	if err != nil {
 		return nil, err
 	}
 	return &Location, nil
 }
 
-func (ls *locationService) GetList() ([]model.Location, error) {
+func (ls *locationService) GetList() ([]model.Location, error) { // TODO this should return a more compact version of Location
 	var result []model.Location
-	rows, err := ls.db.Preload("centers").Preload("machines").Preload("cities").Table("locations").Rows()
+	err := ls.db.Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Find(&result).Error
 	if err != nil{
 		return []model.Location{}, err
 	}
-	defer rows.Close()
 
-	for rows.Next() { 
-		ls.db.ScanRows(rows, &result)
-	}
 	return result, nil 
 }
 

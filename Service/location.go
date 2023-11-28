@@ -47,17 +47,13 @@ func (ls *locationService) GetByID(id int) (*model.Location, error) {
 	return &Location, nil
 }
 
-func (ls *locationService) GetList() ([]model.Location, error) {
+func (ls *locationService) GetList() ([]model.Location, error) { // TODO this should return a more compact version of Location
 	var result []model.Location
-	rows, err := ls.db.Preload("centers").Preload("machines").Preload("cities").Table("locations").Rows()
+	err := ls.db.Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Find(&result).Error
 	if err != nil{
 		return []model.Location{}, err
 	}
-	defer rows.Close()
 
-	for rows.Next() { 
-		ls.db.ScanRows(rows, &result)
-	}
 	return result, nil 
 }
 

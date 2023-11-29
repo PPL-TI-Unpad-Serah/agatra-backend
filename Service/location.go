@@ -13,9 +13,10 @@ type LocationService interface {
 	Update(id int, location model.Location) error
 	Delete(id int) error
 	GetByID(id int) (*model.Location, error)
-	GetList() ([]model.Location, error)
-	GetListNearby(lat float64, long float64) ([]model.Location_range, error)
-	SearchName(name string) ([]model.Location, error)
+	GetList(page int) ([]model.Location, error)
+	GetListNearby(lat float64, long float64, page int) ([]model.Location_range, error)
+	SearchName(name string, page int) ([]model.Location, error)
+	GetWhere(city string, version string, title string, center string, page int)([]model.Location, error)
 }
 
 type locationService struct {
@@ -47,19 +48,18 @@ func (ls *locationService) GetByID(id int) (*model.Location, error) {
 	return &Location, nil
 }
 
-func (ls *locationService) GetList() ([]model.Location, error) { // TODO this should return a more compact version of Location
+func (ls *locationService) GetList(page int) ([]model.Location, error) { // TODO this should return a more compact version of Location
 	var result []model.Location
-	err := ls.db.Preload(clause.Associations).Find(&result).Error
+	err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Find(&result).Error
 	if err != nil{
 		return []model.Location{}, err
 	}
-
 	return result, nil 
 }
 
-func (ls *locationService) GetListNearby(lat float64, long float64) ([]model.Location_range, error) {
+func (ls *locationService) GetListNearby(lat float64, long float64, page int) ([]model.Location_range, error) {
 	var result []model.Location_range
-	rows:= ls.db.Table("locations").Order("distance asc").Select("id", "name", "description", "lat", "long", gorm.Expr("(lat - ?) * (lat - ?) + (long - ?) * (long - ?) as distance", lat, lat, long, long)).Scan(&result)
+	rows:= ls.db.Limit(10).Offset((page - 1) * 10).Table("locations").Order("distance asc").Select("id", "name", "description", "lat", "long", gorm.Expr("(lat - ?) * (lat - ?) + (long - ?) * (long - ?) as distance", lat, lat, long, long)).Scan(&result)
 	if rows.Error != nil{
 		return []model.Location_range{}, rows.Error
 	}
@@ -70,9 +70,9 @@ func (ls *locationService) GetListNearby(lat float64, long float64) ([]model.Loc
 	// }
 	return result, nil 
 }
-func (ls *locationService) SearchName(name string) ([]model.Location, error){
+func (ls *locationService) SearchName(name string, page int) ([]model.Location, error){
 	var result []model.Location
-	rows, err := ls.db.Preload("centers").Preload("machines").Preload("cities").Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
+	rows, err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
 	if err != nil{
 		return []model.Location{}, err
 	}
@@ -82,5 +82,84 @@ func (ls *locationService) SearchName(name string) ([]model.Location, error){
 		ls.db.ScanRows(rows, &result)
 	}
 	return result, nil 
+}
+
+func (ls *locationService) GetWhere(city string, version string, title string, center string, page int) ([]model.Location, error){
+	var result []model.Location
+	if city != "" && center != ""{
+		if version != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else if title != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}
+	}else if city != ""{
+		if version != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else if title != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}
+	}else if center != ""{
+		if version != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else if title != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}
+	}else{
+		if version != ""{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}else{
+			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+			if err != nil{
+				return []model.Location{}, err
+			}
+			return result, nil 
+		}
+	}
 }
 

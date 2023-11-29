@@ -41,7 +41,7 @@ func (ls *locationService) Delete(id int) error {
 
 func (ls *locationService) GetByID(id int) (*model.Location, error) {
 	var Location model.Location
-	err := ls.db.Where("id = ?", id).Preload(clause.Associations).First(&Location).Error
+	err := ls.db.Where("id = ?", id).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.TItle").First(&Location).Error
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (ls *locationService) GetByID(id int) (*model.Location, error) {
 
 func (ls *locationService) GetList(page int) ([]model.Location, error) { // TODO this should return a more compact version of Location
 	var result []model.Location
-	err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Find(&result).Error
+	err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Find(&result).Error
 	if err != nil{
 		return []model.Location{}, err
 	}

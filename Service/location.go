@@ -41,7 +41,7 @@ func (ls *locationService) Delete(id int) error {
 
 func (ls *locationService) GetByID(id int) (*model.Location, error) {
 	var Location model.Location
-	err := ls.db.Where("id = ?", id).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.TItle").First(&Location).Error
+	err := ls.db.Where("id = ?", id).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").First(&Location).Error
 	if err != nil {
 		return nil, err
 	}

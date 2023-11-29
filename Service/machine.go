@@ -36,7 +36,7 @@ func (ms *machineService) Delete(id int) error {
 
 func (ms *machineService) GetByID(id int) (*model.Machine, error) {
 	var Machine model.Machine
-	err := ms.db.Preload(clause.Associations).Where("id = ?", id).First(&Machine).Error
+	err := ms.db.Preload(clause.Associations).Preload("Version.Title").Where("id = ?", id).First(&Machine).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (ms *machineService) GetByID(id int) (*model.Machine, error) {
 
 func (ms *machineService) GetList() ([]model.Machine, error) {
 	var result []model.Machine
-	rows, err := ms.db.Preload(clause.Associations).Table("machines").Rows()
+	rows, err := ms.db.Preload(clause.Associations).Preload("Version.Title").Table("machines").Rows()
 	if err != nil{
 		return []model.Machine{}, err
 	}

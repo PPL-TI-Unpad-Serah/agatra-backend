@@ -6,18 +6,18 @@ import (
 )
 
 type City struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name		string			`gorm:"notNull" json:"name"`
 }
 
 type Center struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name		string			`gorm:"notNull" json:"name"`
 	Info		string			`json:"info"`
 }
 
 type Machine struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	VersionID	int				`gorm:"notNull" json:"version_id"`
 	Version		Version 		`gorm:"notNull;foreignKey:VersionID" json:"version"`
 	Count		int				`gorm:"notNull" json:"machine_count"`
@@ -28,7 +28,7 @@ type Machine struct {
 }
 
 type Location struct {	
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name 		string			`gorm:"notNull" json:"name"`
 	Description	string			`json:"description"`
 	Lat 		float64			`json:"lat"`
@@ -41,7 +41,7 @@ type Location struct {
 }
 
 type Version struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	TitleID		int				`gorm:"notNull" json:"title_id"`
 	Title		Title_compact	`gorm:"notNull;foreignKey:TitleID" json:"title"`
 	Name		string			`gorm:"notNull" json:"name"`
@@ -49,13 +49,13 @@ type Version struct {
 }
 
 type Title struct {
-	ID 			int					`gorm:"primaryKey" json:"id"`
+	ID 			int					`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name		string				`gorm:"notNull" json:"name"`
 	Version		[]Version_compact	`gorm:"notNull; foreignKey:TitleID" json:"versions"`
 }
 
 type User struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Name		string			`gorm:"notNull" json:"name"`	
 	Email		string			`gorm:"notNull" json:"email"`
 	Password	string			`gorm:"notNull" json:"password"`
@@ -63,14 +63,14 @@ type User struct {
 }
 
 type Session struct {
-	ID     int       			`gorm:"primaryKey" json:"id"`
+	ID     int       			`gorm:"primaryKey;autoIncrement" json:"id"`
 	Token  string    			`json:"token"`
 	Email  string    			`json:"email"`
 	Expiry time.Time 			`json:"expiry"`
 }
 
 type Versions struct {
-	ID 			int				`gorm:"primaryKey" json:"id"`
+	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
 	Title		Title_compact	`gorm:"notNull;foreignKey:id" json:"title"`
 	Name		string			`gorm:"notNull" json:"name"`
 	Info		string			`gorm:"notNull" json:"info"`

@@ -17,7 +17,7 @@ func Auth() gin.HandlerFunc {
 		res := strings.Split(ctx.GetHeader("Authorization"), " ")
 
 		if len(res) != 2 || res[0] != "Bearer" {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
@@ -27,7 +27,7 @@ func Auth() gin.HandlerFunc {
         })
 
         if err != nil || !tkn.Valid {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
 
@@ -41,7 +41,7 @@ func AuthAdmin(db *gorm.DB) gin.HandlerFunc {
 		res := strings.Split(ctx.GetHeader("Authorization"), " ")
 
 		if len(res) != 2 || res[0] != "Bearer" {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
@@ -51,7 +51,7 @@ func AuthAdmin(db *gorm.DB) gin.HandlerFunc {
         })
 
         if err != nil || !tkn.Valid {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
 		
@@ -75,7 +75,7 @@ func AuthMaintainer(db *gorm.DB) gin.HandlerFunc {
 		res := strings.Split(ctx.GetHeader("Authorization"), " ")
 
 		if len(res) != 2 || res[0] != "Bearer" {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
 			return
 		}
 
@@ -85,7 +85,7 @@ func AuthMaintainer(db *gorm.DB) gin.HandlerFunc {
         })
 
         if err != nil || !tkn.Valid {
-			ctx.JSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
             return
         }
 

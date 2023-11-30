@@ -49,7 +49,7 @@ func (us *userService) GetByID(id int) (*model.User, error) {
 func (us *userService) GetList() ([]model.User, error) {
 	var result []model.User
 	rows, err := us.db.Table("users").Rows()
-	if err != nil{
+	if err != nil || rows == nil{
 		return []model.User{}, err
 	}
 	defer rows.Close()
@@ -63,7 +63,7 @@ func (us *userService) GetList() ([]model.User, error) {
 func (us *userService) GetPrivileged() ([]model.User, error) {
 	var result []model.User
 	rows, err := us.db.Where("role = ?", "admin").Or("role = ?", "maintainer").Table("users").Rows()
-	if err != nil{
+	if err != nil || rows == nil{
 		return []model.User{}, err
 	}
 	defer rows.Close()
@@ -95,7 +95,7 @@ func (us *userService) GetByName(name string) (model.User, bool) {
 func (us *userService) SearchName(name string) ([]model.User, error){
 	var result []model.User
 	rows, err := us.db.Where("username LIKE ?", "%" + name + "%").Table("users").Rows()
-	if err != nil{
+	if err != nil || rows == nil{
 		return []model.User{}, err
 	}
 	defer rows.Close()

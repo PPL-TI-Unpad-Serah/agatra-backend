@@ -37,7 +37,7 @@ func (ts *titleService) GetByID(id int) (*model.Title, error) {
 	var Title model.Title
 	err := ts.db.Preload("Version").Where("id = ?", id).First(&Title).Error
 	if err != nil {
-		return nil, err
+		return []model.Title{}, err
 	}
 	return &Title, nil
 }

@@ -5,7 +5,7 @@ type Tabler interface {
 }
 
 type Location_compact struct{
-	ID		int				`gorm:"primaryKey" json:"location_id"`
+	ID		int				`gorm:"primaryKey" json:"id"`
 	Name	string			`gorm:"notNull" json:"name"`
 	Version	[]Version		`gorm:"notNull;foreignKey:version_id" json:"version"`
 }
@@ -31,7 +31,7 @@ func (Title_compact) TableName() string {
 }
 
 type User_compact struct {
-	ID 			int				`gorm:"primaryKey" json:"user_id"`
+	ID 			int				`gorm:"primaryKey" json:"id"`
 	Username	string			`gorm:"notNull" json:"username"`	
 	Email		string			`gorm:"notNull" json:"email"`
 	Role		string			`gorm:"notNull" json:"role"`

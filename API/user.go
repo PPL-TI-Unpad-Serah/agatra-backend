@@ -47,7 +47,7 @@ func (ua *userAPI) Login(u *gin.Context) {
 		return
 	}
 	dbUser, _ := ua.userService.GetByName(user.Username)
-	if dbUser.Name == "" || dbUser.ID == 0 {
+	if dbUser.Username == "" || dbUser.ID == 0 {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("user not found"))
 		return
 	}
@@ -100,7 +100,7 @@ func (ua *userAPI) Login(u *gin.Context) {
 			"apiKey": tokenString,
 			"user":gin.H{
 				"id":dbUser.ID,
-				"username":dbUser.Name,
+				"username":dbUser.Username,
 				"email":dbUser.Email,
 				"role":dbUser.Role,
 			},
@@ -133,7 +133,7 @@ func (ua *userAPI) Register(u *gin.Context) {
 	}
 
 	var result model.User = model.User{
-		Name:  user.Username,
+		Username:  user.Username,
 		Email: user.Email,
 		Password: hashedPw,
 		Role: "member",
@@ -157,7 +157,7 @@ func (ua *userAPI) AddUser(u *gin.Context) {
 		return
 	}
 
-	if newUser.Email == "" || newUser.Password == "" || newUser.Name == "" {
+	if newUser.Email == "" || newUser.Password == "" || newUser.Username == "" {
 		u.JSON(http.StatusBadRequest, model.NewErrorResponse("register data is empty"))
 		return
 	}
@@ -218,7 +218,7 @@ func (ua *userAPI) GetUserByID(u *gin.Context) {
 	}
 
 	var result model.UserResponse
-	result.User = *User 
+	result.User = model.UserToCompact(*User) 
 	result.Message = "User with ID " + strconv.Itoa(UserID) + " Found"
 
 	u.JSON(http.StatusOK, result)
@@ -234,7 +234,13 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 		}
 
 		var result model.UserArrayResponse
-		result.Users = User 
+		var userResult []model.User_compact
+
+		for _, data := range User{
+			userResult = append(userResult, model.UserToCompact(data))
+		}
+
+		result.Users = userResult
 		result.Message = "Getting All Users From Search Result Success"
 
 		u.JSON(http.StatusOK, result)
@@ -246,12 +252,17 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 		}
 
 		var result model.UserArrayResponse
-		result.Users = User 
+		var userResult []model.User_compact
+
+		for _, data := range User{
+			userResult = append(userResult, model.UserToCompact(data))
+		}
+
+		result.Users = userResult
 		result.Message = "Getting All Users Success"
 
 		u.JSON(http.StatusOK, result)
 	}
-	
 }
 
 func (ua *userAPI) GetPrivileged(u *gin.Context) {
@@ -262,7 +273,13 @@ func (ua *userAPI) GetPrivileged(u *gin.Context) {
 	}
 
 	var result model.UserArrayResponse
-	result.Users = User 
+	var userResult []model.User_compact
+
+	for _, data := range User{
+		userResult = append(userResult, model.UserToCompact(data))
+	}
+
+	result.Users = userResult
 	result.Message = "Getting All Privileged Users Success"
 
 	u.JSON(http.StatusOK, result)
@@ -276,14 +293,11 @@ func (ua *userAPI) Profile(u *gin.Context) {
 		u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Trouble finding user"})
 	}
 
+	userResult := model.UserToCompact(compare)
+
 	u.JSON(http.StatusOK, gin.H{
 		"message": "Get User Profile Success",
-		"data": gin.H{
-			"id":compare.ID,
-			"username":compare.Name,
-			"email":compare.Email,
-			"role":compare.Role,
-		},
+		"data": userResult,
 	})
 }
 

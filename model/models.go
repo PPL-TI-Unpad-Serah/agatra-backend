@@ -56,7 +56,7 @@ type Title struct {
 
 type User struct {
 	ID 			int				`gorm:"primaryKey;autoIncrement" json:"id"`
-	Name		string			`gorm:"notNull" json:"name"`	
+	Username	string			`gorm:"notNull" json:"username"`	
 	Email		string			`gorm:"notNull" json:"email"`
 	Password	string			`gorm:"notNull" json:"password"`
 	Role		string			`gorm:"notNull" json:"role"`

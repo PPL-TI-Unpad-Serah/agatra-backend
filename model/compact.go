@@ -32,9 +32,8 @@ func (Title_compact) TableName() string {
 
 type User_compact struct {
 	ID 			int				`gorm:"primaryKey" json:"user_id"`
-	Name		string			`gorm:"notNull" json:"name"`	
+	Username	string			`gorm:"notNull" json:"username"`	
 	Email		string			`gorm:"notNull" json:"email"`
-	Password	string			`gorm:"notNull" json:"password"`
 	Role		string			`gorm:"notNull" json:"role"`
 }
 
@@ -75,10 +74,10 @@ func TitleToCompact(tf Title) Title_compact{
 
 func UserToCompact(uf User) User_compact{
 	return User_compact{
-		ID: 	uf.ID,
-		Name: 	uf.Name,
-		Email:	uf.Email,
-		Role:	uf.Role,
+		ID: 		uf.ID,
+		Username: 	uf.Username,
+		Email:		uf.Email,
+		Role:		uf.Role,
 	}
 }
 

@@ -75,12 +75,12 @@ type TitleArrayResponse struct {
 
 type UserResponse struct {
 	Message string `json:"message"`
-	User    User   `json:"data"`
+	User    User_compact   `json:"data"`
 }
 
 type UserArrayResponse struct {
 	Message string `json:"message"`
-	Users   []User `json:"data"`
+	Users   []User_compact `json:"data"`
 }
 
 type SessionResponse struct {

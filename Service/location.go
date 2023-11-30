@@ -86,80 +86,103 @@ func (ls *locationService) SearchName(name string, page int) ([]model.Location, 
 
 func (ls *locationService) GetWhere(city string, version string, title string, center string, page int) ([]model.Location, error){
 	var result []model.Location
-	if city != "" && center != ""{
-		if version != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else if title != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}
-	}else if city != ""{
-		if version != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else if title != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}
-	}else if center != ""{
-		if version != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else if title != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}
-	}else{
-		if version != ""{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}else{
-			err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
-			if err != nil{
-				return []model.Location{}, err
-			}
-			return result, nil 
-		}
+	currentQuery := ls.db.Limit(10).Offset((page - 1) * 10)
+
+	if city != ""{
+		currentQuery = currentQuery.Where("city_id", city)
 	}
+
+	if center != ""{
+		currentQuery = currentQuery.Where("center_id", center)
+	}
+
+	if version != ""{
+		currentQuery = currentQuery.Where("machine.version_id", version)
+	}else if title != ""{
+		currentQuery = currentQuery.Where("machine.version.title_id", title)
+	}
+
+	err := currentQuery.Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Find(&result).Error
+
+	if err != nil{
+		return []model.Location{}, err
+	}
+	return result, nil 
+
+	// if city != "" && center != ""{
+	// 	if version != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else if title != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}
+	// }else if city != ""{
+	// 	if version != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else if title != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("city_id", city).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}
+	// }else if center != ""{
+	// 	if version != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else if title != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("center_id", center).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}
+	// }else{
+	// 	if version != ""{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version_id", version).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}else{
+	// 		err := ls.db.Limit(10).Offset((page - 1) * 10).Where("machine.version.title_id", title).Preload(clause.Associations).Find(&result).Error
+	// 		if err != nil{
+	// 			return []model.Location{}, err
+	// 		}
+	// 		return result, nil 
+	// 	}
+	// }
 }
 

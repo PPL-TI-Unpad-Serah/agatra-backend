@@ -226,7 +226,7 @@ func (ua *userAPI) GetUserByID(u *gin.Context) {
 
 func (ua *userAPI) GetUserList(u *gin.Context) {
 	name := u.Query("name")
-	if name != ""{
+	// if name != ""{
 		User, err := ua.userService.SearchName(name)
 		if err != nil {
 			u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
@@ -234,7 +234,7 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 		}
 
 		var result model.UserArrayResponse
-		var userResult []model.User_compact
+		userResult := []model.User_compact{}
 
 		for _, data := range User{
 			userResult = append(userResult, model.UserToCompact(data))
@@ -244,25 +244,25 @@ func (ua *userAPI) GetUserList(u *gin.Context) {
 		result.Message = "Getting All Users From Search Result Success"
 
 		u.JSON(http.StatusOK, result)
-	}else{
-		User, err := ua.userService.GetList()
-		if err != nil {
-			u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
-			return
-		}
+	// }else{
+	// 	User, err := ua.userService.GetList()
+	// 	if err != nil {
+	// 		u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+	// 		return
+	// 	}
 
-		var result model.UserArrayResponse
-		var userResult []model.User_compact
+	// 	var result model.UserArrayResponse
+	// 	var userResult []model.User_compact
 
-		for _, data := range User{
-			userResult = append(userResult, model.UserToCompact(data))
-		}
+	// 	for _, data := range User{
+	// 		userResult = append(userResult, model.UserToCompact(data))
+	// 	}
 
-		result.Users = userResult
-		result.Message = "Getting All Users Success"
+	// 	result.Users = userResult
+	// 	result.Message = "Getting All Users Success"
 
-		u.JSON(http.StatusOK, result)
-	}
+	// 	u.JSON(http.StatusOK, result)
+	// }
 }
 
 func (ua *userAPI) GetPrivileged(u *gin.Context) {

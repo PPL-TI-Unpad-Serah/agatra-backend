@@ -85,7 +85,7 @@ func (us *userService) GetByEmail(email string) (model.User, bool) {
 
 func (us *userService) GetByName(name string) (model.User, bool) {
 	var result model.User
-	err := us.db.Where("name = ?", name).First(&result).Error
+	err := us.db.Where("username = ?", name).First(&result).Error
 	if err != nil {
 		return model.User{}, false
 	}
@@ -94,7 +94,7 @@ func (us *userService) GetByName(name string) (model.User, bool) {
 
 func (us *userService) SearchName(name string) ([]model.User, error){
 	var result []model.User
-	rows, err := us.db.Where("name LIKE ?", "%" + name + "%").Table("users").Rows()
+	rows, err := us.db.Where("username LIKE ?", "%" + name + "%").Table("users").Rows()
 	if err != nil{
 		return []model.User{}, err
 	}

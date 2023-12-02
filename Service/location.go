@@ -72,7 +72,7 @@ func (ls *locationService) GetListNearby(lat float64, long float64, page int) ([
 }
 func (ls *locationService) SearchName(name string, page int) ([]model.Location, error){
 	var result []model.Location
-	rows, err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
+	rows, err := ls.db.Limit(10).Offset((page - 1) * 10).Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Where("name LIKE ?", "%" + name + "%").Table("locations").Rows()
 	if err != nil{
 		return []model.Location{}, err
 	}

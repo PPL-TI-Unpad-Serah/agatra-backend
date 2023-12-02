@@ -21,6 +21,7 @@ type UserAPI interface {
 	AddUser(u *gin.Context)
 	UpdateUser(u *gin.Context)
 	DeleteUser(u *gin.Context)
+	ChangePassword(u *gin.Context)
 	GetUserByID(u *gin.Context)
 	GetUserList(u *gin.Context)
 	GetPrivileged(u *gin.Context)
@@ -202,6 +203,34 @@ func (ua *userAPI) DeleteUser(u *gin.Context) {
 		return
 	}
 	u.JSON(http.StatusOK, model.SuccessResponse{Message: "User delete success"})
+}
+
+func (ua *userAPI) ChangePassword(u *gin.Context){
+	email := u.Keys["email"].(string)
+
+	compare, boo := ua.userService.GetByEmail(email)
+	if !boo {
+		u.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Trouble finding user"})
+	}
+
+	curr := u.Param("current_password")
+	newp := u.Param("new_password")
+	if !middleware.CheckPasswordHash(curr, compare.Email){
+		u.JSON(http.StatusInternalServerError, model.NewErrorResponse("wrong password"))
+		return
+	}else{
+		hashedPw, err := middleware.HashPassword(newp)
+		if err != nil {
+			u.JSON(http.StatusInternalServerError, model.NewErrorResponse("Skill Issue at Hashing"))
+		}
+		compare.Password = hashedPw
+		err = ua.userService.Update(compare.ID, compare)
+		if err != nil {
+			u.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
+			return
+		}
+		u.JSON(http.StatusOK, model.SuccessResponse{Message: "User update success"})
+	}
 }
 
 func (ua *userAPI) GetUserByID(u *gin.Context) {

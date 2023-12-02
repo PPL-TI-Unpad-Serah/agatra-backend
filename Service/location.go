@@ -97,9 +97,9 @@ func (ls *locationService) GetWhere(city string, version string, title string, c
 	}
 
 	if version != ""{
-		currentQuery = currentQuery.Where("machine.version_id", version)
+		currentQuery = currentQuery.Where("Machine.version_id", version)
 	}else if title != ""{
-		currentQuery = currentQuery.Where("machine.version.title_id", title)
+		currentQuery = currentQuery.Where("Machine.Version.title_id", title)
 	}
 
 	err := currentQuery.Preload(clause.Associations).Preload("Machine.Version").Preload("Machine.Version.Title").Find(&result).Error

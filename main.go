@@ -1,10 +1,7 @@
 package main
 
 import (
-	// api "agatra/API"
-	// service "agatra/Service"
 	"agatra/db"
-	// "agatra/middleware"
 	"agatra/controller"
 	"agatra/model"
 	"log"
@@ -17,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	// "gorm.io/gorm"
 )
 
 func main(){

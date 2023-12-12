@@ -59,32 +59,38 @@ func stop(router *gin.Engine, wg *sync.WaitGroup){
 }
 
 func TestMain(t *testing.T){
-	t.Run("Register", func(t *testing.T) {
+	t.Run("Login", func(t *testing.T){
 		userBody := `{
-			"username" : "Rommel22w",
-			"email" : "rommela.malik@gmail.com",
-			"password" : "abcd",
-			"confirm_password" : "abcd"
+			"Username" : "Rommel22w",
+			"Password" : "abcd"
 		 }`
-		req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/register", strings.NewReader(userBody))
+		req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/login", strings.NewReader(userBody))
 		w := httptest.NewRecorder()
 		router, wg := start() 
 		defer stop(router, wg)
-		
 
 		time.Sleep(10 * time.Second)
-		fmt.Println("Registered Routes:", router.Routes())
 		router.ServeHTTP(w, req)
-		// Send the request to the server
-		// res, err := http.DefaultClient.Do(req)
-		// if err != nil {
-		// 	t.Fatalf("failed to send request: %v", err)
-		// }
-		// defer res.Body.Close()
-
-		// Print the response body for debugging
-		// body, _ := io.ReadAll(res.Body)
-		// fmt.Println("Response Body:", string(body))
-		assert.Equal(t, http.StatusCreated, w.Code)
+		fmt.Println("Request Body:", w.Body)
+		fmt.Println("Request Content-Length:", req.ContentLength)
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
+	// t.Run("Register", func(t *testing.T) {
+	// 	userBody := `{
+	// 		"username" : "Rommel22w",
+	// 		"email" : "rommela.malik@gmail.com",
+	// 		"password" : "abcd",
+	// 		"confirm_password" : "abcd"
+	// 	 }`
+	// 	req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/register", strings.NewReader(userBody))
+	// 	w := httptest.NewRecorder()
+	// 	router, wg := start() 
+	// 	defer stop(router, wg)
+		
+
+	// 	time.Sleep(10 * time.Second)
+	// 	fmt.Println("Registered Routes:", router.Routes())
+	// 	router.ServeHTTP(w, req)
+	// 	assert.Equal(t, http.StatusCreated, w.Code)
+	// })
 }

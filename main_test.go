@@ -12,7 +12,7 @@ import (
 	"net/http/httptest"
 	"time"
 	"strings"
-	"io"
+	// "io"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -60,13 +60,13 @@ func stop(router *gin.Engine, wg *sync.WaitGroup){
 
 func TestMain(t *testing.T){
 	t.Run("Register", func(t *testing.T) {
-		userBodu := 
-		req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/register", strings.NewReader(`{
+		userBody := `{
 			"username" : "Rommel22w",
 			"email" : "rommela.malik@gmail.com",
 			"password" : "abcd",
 			"confirm_password" : "abcd"
-		 }`))
+		 }`
+		req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/register", strings.NewReader(userBody))
 		w := httptest.NewRecorder()
 		router, wg := start() 
 		defer stop(router, wg)
@@ -76,15 +76,15 @@ func TestMain(t *testing.T){
 		fmt.Println("Registered Routes:", router.Routes())
 		router.ServeHTTP(w, req)
 		// Send the request to the server
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			t.Fatalf("failed to send request: %v", err)
-		}
-		defer res.Body.Close()
+		// res, err := http.DefaultClient.Do(req)
+		// if err != nil {
+		// 	t.Fatalf("failed to send request: %v", err)
+		// }
+		// defer res.Body.Close()
 
 		// Print the response body for debugging
-		body, _ := io.ReadAll(res.Body)
-		fmt.Println("Response Body:", string(body))
-		assert.Equal(t, http.StatusOK, w.Code)
+		// body, _ := io.ReadAll(res.Body)
+		// fmt.Println("Response Body:", string(body))
+		assert.Equal(t, http.StatusCreated, w.Code)
 	})
 }

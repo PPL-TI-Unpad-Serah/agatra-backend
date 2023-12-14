@@ -12,7 +12,8 @@ import (
 	"net/http/httptest"
 	"time"
 	"strings"
-	// "io"
+	"encoding/json"
+	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -59,22 +60,83 @@ func stop(router *gin.Engine, wg *sync.WaitGroup){
 }
 
 func TestMain(t *testing.T){
-	t.Run("Login", func(t *testing.T){
+	t.Run("Get", func(t *testing.T){
 		userBody := `{
 			"Username" : "Rommel22w",
 			"Password" : "abcd"
 		 }`
-		req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/login", strings.NewReader(userBody))
+		req, _ := http.NewRequest("POST", "/agatra/login", strings.NewReader(userBody))
 		w := httptest.NewRecorder()
 		router, wg := start() 
 		defer stop(router, wg)
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 		router.ServeHTTP(w, req)
-		fmt.Println("Request Body:", w.Body)
-		fmt.Println("Request Content-Length:", req.ContentLength)
+		var temp model.LoginResponse
+		body, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			fmt.Println("Error reading response:", err)
+		}
+		resJson := []byte(body)
+		err = json.Unmarshal(resJson, &temp)
+		if err != nil {
+			fmt.Println("Error parsing JSON:", err)
+		}
 		assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Get Cities", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/cities", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Cities Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Arcade Locations", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/arcade_locations", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Locations Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Arcade Centers", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Centers Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Arcade Machines", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/arcade_machines", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Machines Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Game Title Versions", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/game_title_versions", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Versions Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Game Titles", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Titles Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Profile", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/profile", nil)
+			fmt.Println("APIKEY:", temp.Data.ApiKey)
+			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Profiles Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
 	})
+
+	
 	// t.Run("Register", func(t *testing.T) {
 	// 	userBody := `{
 	// 		"username" : "Rommel22w",
@@ -82,7 +144,7 @@ func TestMain(t *testing.T){
 	// 		"password" : "abcd",
 	// 		"confirm_password" : "abcd"
 	// 	 }`
-	// 	req, _ := http.NewRequest("POST", "http://localhost:8080/agatra/register", strings.NewReader(userBody))
+	// 	req, _ := http.NewRequest("POST", "/agatra/register", strings.NewReader(userBody))
 	// 	w := httptest.NewRecorder()
 	// 	router, wg := start() 
 	// 	defer stop(router, wg)

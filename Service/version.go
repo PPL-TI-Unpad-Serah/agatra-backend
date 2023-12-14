@@ -44,11 +44,13 @@ func (vs *versionService) GetByID(id int) (*model.Version, error) {
 
 func (vs *versionService) GetList(titleID int) ([]model.Version, error) {
 	var result []model.Version
-	err := vs.db.Preload("Title").Order("name asc").Where("title_id = ?", titleID).Find(&result).Error
-
+	currentQuery := vs.db.Preload("Title").Order("name asc")
+	if titleID != 0{
+		currentQuery = currentQuery.Where("title_id = ?", titleID)
+	}
+	err := currentQuery.Find(&result).Error
 	if err != nil{
 		return []model.Version{}, err
 	}
-
 	return result, nil 
 }

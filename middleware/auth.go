@@ -41,7 +41,7 @@ func AuthAdmin(db *gorm.DB) gin.HandlerFunc {
 		res := strings.Split(ctx.GetHeader("Authorization"), " ")
 
 		if len(res) != 2 || res[0] != "Bearer" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "ga valid bang"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, model.ErrorResponse{Error: "coba lagi bang"})
 			return
 		}
 

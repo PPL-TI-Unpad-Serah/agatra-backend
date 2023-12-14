@@ -117,7 +117,7 @@ func TestMain(t *testing.T){
 				req, _ := http.NewRequest("GET", "/agatra/cities/1", nil)
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				fmt.Println("Get Cities Body:", w.Body)
+				fmt.Println("Get Cities Body By ID:", w.Body)
 				assert.Equal(t, http.StatusOK, w.Code)
 			})
 			t.Run("Add Cities", func(t *testing.T){
@@ -186,14 +186,21 @@ func TestMain(t *testing.T){
 				fmt.Println("Get Arcade Locations Body:", w.Body)
 				assert.Equal(t, http.StatusOK, w.Code)
 			})
+			t.Run("Get Arcade Locations By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_locations/1", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Arcade Locations Body By ID:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 			t.Run("Add Arcade Locations", func(t *testing.T){
 				locationBody := `{
 					"Name" : "2",
 					"Description" : "2",
-					"Lat" : "2",
-					"Long" : "2",
-					"CenterID" : "1",
-					"CityID" : "1"
+					"Lat" : 2,
+					"Long" : 2,
+					"Center_id" : 1,
+					"City_id" : 1
 				}`
 				req, _ := http.NewRequest("POST", "/agatra/admin/arcade_locations", strings.NewReader(locationBody))
 				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
@@ -220,10 +227,10 @@ func TestMain(t *testing.T){
 				locationBody := `{
 					"Name" : "1",
 					"Description" : "1",
-					"Lat" : "1",
-					"Long" : "1",
-					"CenterID" : "1",
-					"CityID" : "1"
+					"Lat" : 1,
+					"Long" : 1,
+					"Center_id" : 1,
+					"City_id" : 1
 				}`
 				id := strconv.Itoa(temp2.Locations[len(temp2.Locations)-1].ID)
 				req, _ = http.NewRequest("PUT", "/agatra/admin/arcade_locations/" + id, strings.NewReader(locationBody))

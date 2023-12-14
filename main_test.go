@@ -571,22 +571,99 @@ func TestMain(t *testing.T){
 			})
 		})
 		
-		t.Run("Get Users", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
-			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Users Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Users", func(t *testing.T){
+			t.Run("Get Users", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Users Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Privileged Users", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/admin/users/privileged", nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Privileged Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Users By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/admin/users/1", nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Users Body By ID:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Users", func(t *testing.T){
+				userBody := `{
+					"Username" : "jan",
+					"Email" : "1",
+					"Password" : "1",
+					"Role" : "Member"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/users", strings.NewReader(userBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Users", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.UserArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				userBody := `{
+					"Username" : "ojan",
+					"Email" : "1",
+					"Password" : "1",
+					"Role" : "Member"
+				}`
+				id := strconv.Itoa(temp2.Users[len(temp2.Users)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/users/" + id, strings.NewReader(userBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Users", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.UserArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Users[len(temp2.Users)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/users/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
-		t.Run("Get Privileged Users", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/admin/users/privileged", nil)
-			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Privileged Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
-		})
+		
+		
 		t.Run("Get Profile", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/profile", nil)
 			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)

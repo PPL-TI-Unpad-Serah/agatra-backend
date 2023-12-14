@@ -3,17 +3,19 @@ package main
 import (
 	"agatra/db"
 	"agatra/model"
+	"bytes"
 
 	_ "embed"
+	"encoding/json"
 	"fmt"
-	"sync"
-	"testing"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"time"
+	"strconv"
 	"strings"
-	"encoding/json"
-	"io/ioutil"
+	"sync"
+	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -55,12 +57,32 @@ func start() (*gin.Engine, *sync.WaitGroup){
 	return router, &wg
 }
 
+func getSuccess(w *bytes.Buffer){
+	var temp model.SuccessResponse
+	body, err := ioutil.ReadAll(w)
+	if err != nil {
+		fmt.Println("Error reading response:", err)
+	}
+	resJson := []byte(body)
+	err = json.Unmarshal(resJson, &temp)
+	if err != nil {
+		var temp2 model.ErrorResponse
+		err = json.Unmarshal(resJson, &temp2)
+		if err != nil{
+			fmt.Println("Error parsing JSON:", err)
+		}
+		fmt.Println(temp2.Error)
+	}else{
+		fmt.Println(temp.Message)
+	}
+}
+
 func stop(router *gin.Engine, wg *sync.WaitGroup){
 	wg.Done()
 }
 
 func TestMain(t *testing.T){
-	t.Run("Get", func(t *testing.T){
+	t.Run("Running Server", func(t *testing.T){
 		userBody := `{
 			"Username" : "Rommel22w",
 			"Password" : "abcd"
@@ -83,19 +105,154 @@ func TestMain(t *testing.T){
 			fmt.Println("Error parsing JSON:", err)
 		}
 		assert.Equal(t, http.StatusOK, w.Code)
-		t.Run("Get Cities", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/cities", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Cities Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Cities", func(t *testing.T){
+			t.Run("Get Cities", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/cities", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Cities Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Cities By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/cities/1", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Cities Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Cities", func(t *testing.T){
+				cityBody := `{
+					"Name" : "Bekasih"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/cities", strings.NewReader(cityBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Cities", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/cities", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.CityArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				cityBody := `{
+					"Name" : "Bekasi"
+				}`
+				id := strconv.Itoa(temp2.Cities[len(temp2.Cities)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/cities/" + id, strings.NewReader(cityBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Cities", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/cities", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.CityArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Cities[len(temp2.Cities)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/cities/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
-		t.Run("Get Arcade Locations", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/arcade_locations", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Locations Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Arcade Locations", func(t *testing.T){
+			t.Run("Get Arcade Locations", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_locations", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Arcade Locations Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Arcade Locations", func(t *testing.T){
+				locationBody := `{
+					"Name" : "2",
+					"Description" : "2",
+					"Lat" : "2",
+					"Long" : "2",
+					"CenterID" : "1",
+					"CityID" : "1"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/arcade_locations", strings.NewReader(locationBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Arcade Locations", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_locations", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.LocationArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				locationBody := `{
+					"Name" : "1",
+					"Description" : "1",
+					"Lat" : "1",
+					"Long" : "1",
+					"CenterID" : "1",
+					"CityID" : "1"
+				}`
+				id := strconv.Itoa(temp2.Locations[len(temp2.Locations)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/arcade_locations/" + id, strings.NewReader(locationBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Arcade Locations", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_locations", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.LocationArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Locations[len(temp2.Locations)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/arcade_locations/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
 		t.Run("Get Arcade Centers", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
@@ -125,9 +282,24 @@ func TestMain(t *testing.T){
 			fmt.Println("Get Titles Body:", w.Body)
 			assert.Equal(t, http.StatusOK, w.Code)
 		})
+		t.Run("Get Users", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
+			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Users Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("Get Privileged Users", func(t *testing.T){
+			req, _ := http.NewRequest("GET", "/agatra/admin/users/privileged", nil)
+			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			fmt.Println("Get Privileged Body:", w.Body)
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
 		t.Run("Get Profile", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/profile", nil)
-			fmt.Println("APIKEY:", temp.Data.ApiKey)
 			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)

@@ -261,12 +261,80 @@ func TestMain(t *testing.T){
 				assert.Equal(t, http.StatusOK, w.Code)
 			})
 		})
-		t.Run("Get Arcade Centers", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Centers Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Arcade Centers", func(t *testing.T){
+			t.Run("Get Arcade Centers", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Arcade Centers Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Arcade Centers By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_centers/1", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Arcade Centers Body By ID:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Arcade Centers", func(t *testing.T){
+				centerBody := `{
+					"Name" : "Tz",
+					"Info" : "test"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/arcade_centers", strings.NewReader(centerBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Arcade Centers", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.CenterArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				centerBody := `{
+					"Name" : "Timez",
+					"Info" : "test"
+				}`
+				id := strconv.Itoa(temp2.Centers[len(temp2.Centers)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/arcade_centers/" + id, strings.NewReader(centerBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Arcade Centers", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/arcade_centers", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.CenterArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Centers[len(temp2.Centers)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/arcade_centers/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
 		t.Run("Get Arcade Machines", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/arcade_machines", nil)

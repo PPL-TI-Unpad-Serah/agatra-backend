@@ -350,13 +350,80 @@ func TestMain(t *testing.T){
 			fmt.Println("Get Versions Body:", w.Body)
 			assert.Equal(t, http.StatusOK, w.Code)
 		})
-		t.Run("Get Game Titles", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Titles Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+		t.Run("Game Titles", func(t *testing.T){
+			t.Run("Get Game Titles", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Game Titles Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Game Titles By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_titles/1", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Game Titles Body By ID:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Game Titles", func(t *testing.T){
+				titleBody := `{
+					"Name" : "maymay"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/game_titles", strings.NewReader(titleBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Game Titles", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.TitleArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				titleBody := `{
+					"Name" : "MaiMai"
+				}`
+				id := strconv.Itoa(temp2.Titles[len(temp2.Titles)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/game_titles/" + id, strings.NewReader(titleBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Game Titles", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.TitleArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Titles[len(temp2.Titles)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/game_titles/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
+		
 		t.Run("Get Users", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/admin/users", nil)
 			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)

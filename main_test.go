@@ -60,7 +60,7 @@ func stop(router *gin.Engine, wg *sync.WaitGroup){
 }
 
 func TestMain(t *testing.T){
-	t.Run("Login", func(t *testing.T){
+	t.Run("Get", func(t *testing.T){
 		userBody := `{
 			"Username" : "Rommel22w",
 			"Password" : "abcd"
@@ -71,8 +71,6 @@ func TestMain(t *testing.T){
 		defer stop(router, wg)
 
 		time.Sleep(1 * time.Second)
-		router.ServeHTTP(w, req)
-		req, _ = http.NewRequest("GET", "/agatra/cities", nil)
 		router.ServeHTTP(w, req)
 		var temp model.LoginResponse
 		body, err := ioutil.ReadAll(w.Body)
@@ -129,6 +127,7 @@ func TestMain(t *testing.T){
 		})
 		t.Run("Get Profile", func(t *testing.T){
 			req, _ := http.NewRequest("GET", "/agatra/profile", nil)
+			fmt.Println("APIKEY:", temp.Data.ApiKey)
 			req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)

@@ -343,13 +343,85 @@ func TestMain(t *testing.T){
 			fmt.Println("Get Machines Body:", w.Body)
 			assert.Equal(t, http.StatusOK, w.Code)
 		})
-		t.Run("Get Game Title Versions", func(t *testing.T){
-			req, _ := http.NewRequest("GET", "/agatra/game_title_versions", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			fmt.Println("Get Versions Body:", w.Body)
-			assert.Equal(t, http.StatusOK, w.Code)
+
+		t.Run("Game Title Versions", func(t *testing.T){
+			t.Run("Get Game Title Versions", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_title_versions", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Game Title Versions Body:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Get Game Title Versions By ID", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_title_versions/1", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				fmt.Println("Get Game Title Versions Body By ID:", w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Add Game Title Versions", func(t *testing.T){
+				titleBody := `{
+					"Name" : "maymay finale",
+					"title_id" : 1,
+					"Info" : "1"
+				}`
+				req, _ := http.NewRequest("POST", "/agatra/admin/game_title_versions", strings.NewReader(titleBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Update Game Title Versions", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_title_versions", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.VersionArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+
+				titleBody := `{
+					"Name" : "MaiMai Festival",
+					"title_id" : 1,
+					"Info" : "2"
+				}`
+				id := strconv.Itoa(temp2.Versions[len(temp2.Versions)-1].ID)
+				req, _ = http.NewRequest("PUT", "/agatra/admin/game_title_versions/" + id, strings.NewReader(titleBody))
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
+			t.Run("Delete Game Title Versions", func(t *testing.T){
+				req, _ := http.NewRequest("GET", "/agatra/game_title_versions", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var temp2 model.VersionArrayResponse
+				body, err := ioutil.ReadAll(w.Body)
+				if err != nil {
+					fmt.Println("Error reading response:", err)
+				}
+				resJson := []byte(body)
+				err = json.Unmarshal(resJson, &temp2)
+				if err != nil {
+					fmt.Println("Error parsing JSON:", err)
+				}
+				id := strconv.Itoa(temp2.Versions[len(temp2.Versions)-1].ID)
+				req, _ = http.NewRequest("DELETE", "/agatra/admin/game_title_versions/" + id, nil)
+				req.Header.Set("Authorization", "Bearer "+ temp.Data.ApiKey)
+				router.ServeHTTP(w, req)
+				getSuccess(w.Body)
+				assert.Equal(t, http.StatusOK, w.Code)
+			})
 		})
+		
 		t.Run("Game Titles", func(t *testing.T){
 			t.Run("Get Game Titles", func(t *testing.T){
 				req, _ := http.NewRequest("GET", "/agatra/game_titles", nil)

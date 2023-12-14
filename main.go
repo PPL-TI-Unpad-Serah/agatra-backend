@@ -106,6 +106,12 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 				title.PUT("/:id", apiHandler.TitleAPIHandler.UpdateTitle)
 				title.DELETE("/:id", apiHandler.TitleAPIHandler.DeleteTitle)
 			}
+			machine := admin.Group("/arcade_machines")
+			{
+				machine.POST("", apiHandler.MachineAPIHandler.AddMachine)
+				machine.PUT("/:id", apiHandler.MachineAPIHandler.UpdateMachine)
+				machine.DELETE("/:id", apiHandler.MachineAPIHandler.DeleteMachine)
+			}
 		}
 
 		maintainer := alpha.Group("/maintainer", middleware.AuthMaintainer(db))
